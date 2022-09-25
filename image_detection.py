@@ -7,7 +7,7 @@ from object_detection.utils import label_map_util
 from object_detection.utils import visualization_utils as viz_utils
 from object_detection.builders import model_builder
 from object_detection.utils import config_util
-from load_train_model import detect_fn
+from load_custom_model import detect_fn
 
 CUSTOM_MODEL_NAME = 'my_ssd_mobnet'
 PRETRAINED_MODEL_NAME = 'ssd_mobilenet_v2_fpnlite_320x320_coco17_tpu-8'
@@ -50,11 +50,10 @@ files = {
 
 
 category_index = label_map_util.create_category_index_from_labelmap(files['LABELMAP'])
-IMAGE_PATH = os.path.join(paths['IMAGE_PATH'], 'test', '20210908_185946435_iOS.jpg')
+IMAGE_PATH = os.path.join(paths['IMAGE_PATH'], 'test', '20210908_185839581_iOS.jpg')
 tf.config.run_functions_eagerly(True)
 img = cv2.imread(IMAGE_PATH)
 image_np = np.array(img)
-
 input_tensor = tf.convert_to_tensor(np.expand_dims(image_np, 0), dtype=tf.float32)
 detections = detect_fn(input_tensor)
 

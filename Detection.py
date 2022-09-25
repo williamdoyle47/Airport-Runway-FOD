@@ -2,23 +2,24 @@ import base64
 import folium
 from folium import IFrame
 import random
-from extract_coordinates import *
-
+from gps_controller import *
+import datetime
+import sqlite3
 
 class Detection:
 
     staticId = 1
 
-    def __init__(self, fod_type, m, gps_controller):
+    def __init__(self, fod_type, mapping, gps_controller):
         self.gps_controller = gps_controller
         self.fod_type = fod_type
         self.point = self.get_position()
-        self.m = m
+        self.mapping = mapping
         self.id = self.staticId
         Detection.staticId += 1
         self.image = "detectionImages/" + str(self.id) + ".jpeg"
-        #self.addPoint()
         print("Detection object created at coordinates: " + str(self.point))
+        
 
     def addPoint(self):
         if self.point: # If point is defined
@@ -29,7 +30,7 @@ class Detection:
             iframe = IFrame(html(encoded.decode('UTF-8'), width, height))
             popup = folium.Popup(iframe, min_width=1000, max_width=2650)
             folium.Marker(self.point, popup=popup).add_to(self.m)
-            self.m.save("map.html")
+            self.mapping.save("map.html")
 
     # For simulating fake GPS coordinates (ECC parking lot)
     def get_position_simulated(self):
@@ -50,11 +51,23 @@ class Detection:
         with open("Log.txt", "a") as text_file:
             text_file.write("Object detected at: " + str(self.point) + '\n')
 
+    def insertToDb(self):
+        try:
+            conn = sqlite3.connect('detections.db')
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO detections VALUES (?, ?, ?)", (self.fod_type, str(self.get_position()),
+            datetime.datetime.now()))
+            conn.commit()
+            conn.close()
+        except sqlite3.Error as e:
+            print(e)
+
+
 # Testing (only executes if this file is run directly)
 if __name__ == "__main__":
 
     gps_controller = GPS_Controller()
-    m = folium.Map(location=[45.550120, -94.152411], zoom_start=20)
+    mapping = folium.Map(location=[45.550120, -94.152411], zoom_start=20)
 
     tile = folium.TileLayer(
             tiles = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
@@ -62,14 +75,14 @@ if __name__ == "__main__":
             name = 'Esri Satellite',
             overlay = False,
             control = True
-        ).add_to(m)
+        ).add_to(mapping)
 
-    det1 = Detection("wood", m, gps_controller)
-    det2 = Detection("wood", m, gps_controller)
-    det3 = Detection("wood", m, gps_controller)
+    det1 = Detection("wood", mapping, gps_controller)
+    det2 = Detection("wood", mapping, gps_controller)
+    det3 = Detection("wood", mapping, gps_controller)
     print(det1.id)
     print(det2.id)
     print(det3.id)
-    m.save("map.html")
+    mapping.save("map.html")
 
     print(det1.get_position())

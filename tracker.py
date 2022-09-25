@@ -4,6 +4,7 @@ import math
 from Detection import Detection
 from matplotlib import pyplot as plt
 import cv2 as cv
+import datetime
 
 
 class EuclideanDistTracker:
@@ -20,7 +21,7 @@ class EuclideanDistTracker:
     def getDetectionsList(self):
         return detections_list
 
-    def update(self, objects_rect, frame, gps_controller, m):
+    def update(self, objects_rect, frame, gps_controller, mapping):
         # Objects boxes and ids
         objects_bbs_ids = []
 
@@ -49,7 +50,11 @@ class EuclideanDistTracker:
                 objects_bbs_ids.append([x, y, w, h, self.id_count])
                 self.id_count += 1
                 # Create det
-                det = Detection("placeholderType", m, gps_controller)
+                det = Detection("placeholderType", mapping, gps_controller)
+
+                #upload to sql
+                det.insertToDb()
+
                 # Add to list of detections (instead of map yet)
                 self.detections_list.append(det)
                 # Save detection as image:
@@ -57,8 +62,6 @@ class EuclideanDistTracker:
                 plt.imshow(cv.cvtColor(frame, cv.COLOR_BGR2RGB))
                 plt.savefig(savePath)
                 det.writeToLog()
-
-
 
         # Clean the dictionary by center points to remove IDS not used anymore
         new_center_points = {}

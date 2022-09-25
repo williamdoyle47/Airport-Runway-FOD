@@ -61,4 +61,5 @@ def detect_fn(image):
     image, shapes = detection_model.preprocess(image)
     prediction_dict = detection_model.predict(image, shapes)
     detections = detection_model.postprocess(prediction_dict, shapes)
+    #print detections
     return detections
