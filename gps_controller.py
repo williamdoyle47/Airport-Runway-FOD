@@ -1,10 +1,9 @@
 # This script is used for extracting the coordinates from the raw data of the GPS puck.
 from logging import exception
 from pyembedded.gps_module.gps import GPS
-import time
-import sys
 
 # class NoGPSError(Exception):
+#     print("No Device Found")
 #     pass
 
 class GPS_Controller():
@@ -16,15 +15,15 @@ class GPS_Controller():
 
     def get_gps_device(self):
         numof_ports_searched = 30
-        gps = None #Return None if no GPS found
+        gps = None 
         print("\nSearching for GPS on your devices ports...\n")
         for i in range(numof_ports_searched): #Iterates through ports on computer 
             portString = "Com" + str(i)
             try:
-                gps = GPS(port=portString, baud_rate=4800) # Port used for device, baud rate set for device
-                print("Device found on port " + str(i))
+                gps = GPS(port=portString, baud_rate=4800) #baud rate set for device
+                print("Device found on port " + str(i) + "!")
                 return gps
-            except: #Maybe this is where we shut down all GPS related functions
+            except: 
                 if i == (numof_ports_searched-1):
                     print("Warning: No GPS device found on your system!")
                     print("The system will be unable to extract coordinates upon detection!\n")
@@ -32,9 +31,9 @@ class GPS_Controller():
 
     def toggle_device(self):
         if self.gps is not None:
-            self.gps == None
+            self.gps = None
             print("Device Turned off")
-        if self.gps == None:
+        if self.gps is None:
             self.gps = self.get_gps_device()
 
     # The following function takes raw data (array) as argument, returns [longitude, latitude] as decimal degrees.
@@ -45,7 +44,7 @@ class GPS_Controller():
     def transform_coordinates(self, raw_data):
         try:
             ### Processing Latitude ###
-
+            # print(raw_data)
             # Parse raw data to get latitude as degrees, minutes, seconds, and direction (West/East).
             lat = raw_data[2]
             lat_dir = raw_data[3]
@@ -54,7 +53,6 @@ class GPS_Controller():
             lat_sec = float(lat[4:])
             # Converting remainder min to sec (might be unnecessary)
             lat_sec_conv = float(lat_sec) * 60.0
-
 
             ### Processing Longitude ###
 
@@ -83,45 +81,37 @@ class GPS_Controller():
             lat_final = lat_dec_deg
             long_final = long_dec_deg
 
-            #print(lat_final, long_final)
+            print(lat_final, long_final) #error is made before this point
 
             # Returning the latitude and longitude to be used for placing point on map
             return [lat_final, long_final]
-        except TypeError: 
-            print("No Device Found -- Returning coordinateds [0,0]")
-            return [0,0]
         except:
-            print("error while transforming coordinates")
+            print("Unknown error while transforming coordinates -- Returning coordinates [0,0]")
             return [0,0]
 
 
     def get_raw_gps(self): # Returns raw data from GPS as an array
-        # Port used for device, baud rate set for device
-        #gps = GPS(port='Com4', baud_rate=4800)
-
-        # Getting GPS data
-        #print(gps.get_lat_long()) # Getting longitude and latitude of device
-        #print(gps.get_no_of_satellites()) # Getting number of satellites used
-
         try:
-            return self.gps.get_raw_data() # Raw GPS data extracted from GPS device via the gps object 
+            # Raw GPS data extracted from GPS device via the gps object
+            raw_data = self.gps.get_raw_data() 
+            # print(raw_data)
+            return raw_data
         except: 
-            print("Unable to get GPS coordinates")
-            pass
-        # time.sleep(.30)
-            #sys.exit()
+            print("Unable to get raw data")
+            return [0,0]
 
     def extract_coordinates(self):
-        if self.gps == None:
+        if self.gps is None:
+            # print('GPS IS OFF OR NOT PLUGGED IN')
             self.last_coords = [0,0]
-            return [0,0]
+            return self.last_coords
 
         try:
             raw_data = self.get_raw_gps()
             transformed = self.transform_coordinates(raw_data)
             self.last_coords = transformed
             print("extract_coordinates: " + str(transformed))
-            return transformed
+            return self.last_coords
         except:
             return [0, 0]
 
