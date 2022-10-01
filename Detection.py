@@ -18,8 +18,10 @@ class Detection:
         self.id = self.staticId
         Detection.staticId += 1
         self.image = "detectionImages/" + str(self.id) + ".jpeg"
-        print("Detection object created at coordinates: " + str(self.point))
-        
+        if (self.gps_controller.gps is None):
+            print("Object detected but GPS off or disconnected")
+        else:
+            print("Detection object created at coordinates: " + str(self.point))
 
     def addPoint(self):
         if self.point: # If point is defined
