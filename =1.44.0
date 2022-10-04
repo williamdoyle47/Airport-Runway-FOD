@@ -1,0 +1,5 @@
+Requirement already satisfied: grpcio-tools in c:\users\casan\onedrive\documents\github\airport-runway-fod\fodenv\lib\site-packages (1.44.0)
+Requirement already satisfied: protobuf<4.0dev,>=3.5.0.post1 in c:\users\casan\onedrive\documents\github\airport-runway-fod\fodenv\lib\site-packages (from grpcio-tools) (3.19.4)
+Requirement already satisfied: setuptools in c:\users\casan\onedrive\documents\github\airport-runway-fod\fodenv\lib\site-packages (from grpcio-tools) (58.1.0)
+Requirement already satisfied: grpcio>=1.44.0 in c:\users\casan\onedrive\documents\github\airport-runway-fod\fodenv\lib\site-packages (from grpcio-tools) (1.48.1)
+Requirement already satisfied: six>=1.5.2 in c:\users\casan\onedrive\documents\github\airport-runway-fod\fodenv\lib\site-packages (from grpcio>=1.44.0->grpcio-tools) (1.16.0)
