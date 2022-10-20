@@ -30,7 +30,7 @@ jobs:
         pip install --upgrade setuptools
         pip install Cython --upgrade
         pip install numpy --upgrade 
-        apt-get install gcc -y
+        sudo apt-get install gcc -y
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Lint with flake8
       run: |
