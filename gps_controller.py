@@ -1,6 +1,7 @@
 # This script is used for extracting the coordinates from the raw data of the GPS puck.
 from logging import exception
 from pyembedded.gps_module.gps import GPS
+import os 
 
 # class NoGPSError(Exception):
 #     print("No Device Found")
@@ -17,17 +18,33 @@ class GPS_Controller():
         numof_ports_searched = 30
         gps = None 
         print("\nSearching for GPS on your devices ports...\n")
-        for i in range(numof_ports_searched): #Iterates through ports on computer 
-            portString = "Com" + str(i)
-            try:
-                gps = GPS(port=portString, baud_rate=4800) #baud rate set for device
-                print("Device found on port " + str(i) + "!")
-                return gps
-            except: 
-                if i == (numof_ports_searched-1):
-                    print("Warning: No GPS device found on your system!")
-                    print("The system will be unable to extract coordinates upon detection!\n")
+        
+
+        if os.name=='nt':
+            for i in range(numof_ports_searched): #Iterates through ports on computer 
+                portString = "COM " + str(i)
+                try:
+                    gps = GPS(port=portString, baud_rate=9600) #baud rate set for device
+                    print("Device found on port " + str(i) + "!")
+                    return gps
+                except: 
+                    if i == (numof_ports_searched-1):
+                        print("Warning: No GPS device found on your system!")
+                        print("The system will be unable to extract coordinates upon detection!\n")
+        if os.name=='posix':
+                try:
+                    portString = "/dev/tty.usbmodem143201"
+                    gps = GPS(port=portString, baud_rate=9600) #baud rate set for device
+                    print("Device found on port!")
+                    return gps
+                except: 
+                        print("Warning: No GPS device found on your system!")
+                        print("The system will be unable to extract coordinates upon detection!\n")
+
+        
         return gps #if there is no gps self.gps will be None
+
+
 
     def toggle_device(self):
         if self.gps is not None:
