@@ -48,10 +48,18 @@ matplotlib==3.2.0
 mypy-extensions==0.4.3
 numpy==1.19.5
 oauth2client==4.1.3
+<<<<<<< Updated upstream
 oauthlib==3.1.1
 object-detection @ file:///Users/can/Desktop/SE490-FOD/Tensorflow/models/research
 opencv-python==4.5.3.56
 opencv-python-headless==4.5.3.56
+=======
+oauthlib==3.2.1
+object-detection @ file:///Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/Tensorflow/models/research
+opencv-contrib-python==4.6.0.66
+opencv-python==4.6.0.66
+opencv-python-headless==4.6.0.66
+>>>>>>> Stashed changes
 opt-einsum==3.3.0
 orjson==3.6.3
 pandas==1.3.2
