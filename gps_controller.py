@@ -40,19 +40,19 @@ class GPS_Controller():
                 except: 
                         print("Warning: No GPS device found on your system!")
                         print("The system will be unable to extract coordinates upon detection!\n")
-
-        
         return gps #if there is no gps self.gps will be None
-
-
 
     def toggle_device(self):
         if self.gps is not None:
             self.gps = None
             print("Device Turned off")
-        if self.gps is None:
+        elif self.gps is None:
             self.gps = self.get_gps_device()
-
+    #get gps status
+    def get_gps_status(self):
+        if self.gps is None:
+            return None
+        return self.gps
     # The following function takes raw data (array) as argument, returns [longitude, latitude] as decimal degrees.
     # Raw data is in NMEA format, so we need to parse the numbers to get the true decimal-degree coordinates.
     # For example, 09349.7112 West is actually -93.82852 because the first digits (093) indicate degrees, 
@@ -60,48 +60,20 @@ class GPS_Controller():
     # West and South correspond to negative values for latitude and longitude, respectively.
     def transform_coordinates(self, raw_data):
         try:
-            ### Processing Latitude ###
-            # print(raw_data)
-            # Parse raw data to get latitude as degrees, minutes, seconds, and direction (West/East).
-            lat = raw_data[2]
-            lat_dir = raw_data[3]
-            lat_deg = float(lat[0:2])
-            lat_min = float(lat[2:4])
-            lat_sec = float(lat[4:])
-            # Converting remainder min to sec (might be unnecessary)
-            lat_sec_conv = float(lat_sec) * 60.0
-
-            ### Processing Longitude ###
-
-            # Parse raw data, similar to previous calculations
-            long = raw_data[4]
-            long_dir = raw_data[5]
-            long_deg = float(long[0:3])
-            long_min = float(long[3:5])
-            long_sec = float(long[5:])
-            long_sec_conv = float(long_sec) * 60.0
-
-            ### Converting to decimal degrees.
-            # Now that we have the real deg/min/sec, convert to decimal degree value.
-            # Dec. Deg. will be used for adding markers to the map.
-
-            # Lat
-            lat_dec_deg = lat_deg + (lat_min/60.0) + (lat_sec_conv/3600.0)
-            if lat_dir == 'S':
-                lat_dec_deg *= -1
-
-            # Long
-            long_dec_deg = long_deg + (long_min/60.0) + (long_sec_conv/3600.0)
-            if long_dir == 'W':
-                long_dec_deg *= -1
-
-            lat_final = lat_dec_deg
-            long_final = long_dec_deg
-
-            print(lat_final, long_final) #error is made before this point
+            lati = raw_data[0]
+            longi = raw_data[1]
+            if isinstance(lati, str):
+                lati = 0
+            if isinstance(longi, str):
+                longi = 0
+            negative_check = self.gps.get_raw_data()
+            if negative_check[3] == 'S':
+                lati *= -1
+            if negative_check[5] == 'W':
+                longi *= -1
 
             # Returning the latitude and longitude to be used for placing point on map
-            return [lat_final, long_final]
+            return [lati, longi]
         except:
             print("Unknown error while transforming coordinates -- Returning coordinates [0,0]")
             return [0,0]
@@ -110,7 +82,8 @@ class GPS_Controller():
     def get_raw_gps(self): # Returns raw data from GPS as an array
         try:
             # Raw GPS data extracted from GPS device via the gps object
-            raw_data = self.gps.get_raw_data() 
+            coords = self.gps.get_lat_long() 
+            raw_data = list(coords)
             # print(raw_data)
             return raw_data
         except: 
@@ -143,6 +116,12 @@ if __name__ == "__main__":
 
     transformed = gps_controller.transform_coordinates(raw_data)
     print(transformed)
+
+    blank = list()
+    blank.append('N/A')
+    blank.append('N/A')
+    testblank = gps_controller.transform_coordinates(blank)
+    print(testblank)
 
     extracted = gps_controller.extract_coordinates()
     print(extracted)
