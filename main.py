@@ -1,6 +1,6 @@
 import time
 import PySimpleGUI as sg
-from utility.detected_image_folder_funcs import * 
+from utility.detected_image_folder_funcs import *
 from utility.map_utils import *
 from gps_controller import *
 from threading import Thread
@@ -9,29 +9,30 @@ from gui_comp import *
 from data_model_interactions import *
 from utility.gui_utils import *
 
+
 def main():
     # Create folder for storing snapshots of detections (if not already created)
     create_folder("detectionImages")
     # Clear detections from past runs
     delete_folder_contents("detectionImages")
-    #Clear log file
+    # Clear log file
     clearLog()
 
     window = sg.Window("FOD Detection", layout,
-                        no_titlebar=False, alpha_channel=1, grab_anywhere=False,
-                        return_keyboard_events=True, location=(100, 100)).Finalize()
+                       no_titlebar=False, alpha_channel=1, grab_anywhere=False,
+                       return_keyboard_events=True, location=(100, 100)).Finalize()
 
     # Initialize GPS controller
-    gps_controller = GPS_Controller() #Returns None if no gps device
+    gps_controller = GPS_Controller()  # Returns None if no gps device
 
-    #Initialize object tracking object
+    # Initialize object tracking object
     tracker = EuclideanDistTracker()
 
     # Initialize coordinates
-    try: # if gps is accessible
+    try:  # if gps is accessible
         starting_coords = gps_controller.extract_coordinates()
-    except: # if unable to access gps
-        starting_coords = [0,0]
+    except:  # if unable to access gps
+        starting_coords = [0, 0]
         print("unable to get starting coordinates - defaulting to 0,0")
 
     # Initialize map
@@ -56,14 +57,15 @@ def main():
             openMap(tracker)
         if event == 'GPS':
             gps_controller.toggle_device()
-        
 
-        threshold = getThreshold(values['threshAmount'])
-        cameraAmount = getCameraAmount(values['cameraAmount'])
-        selectCamera(cameraAmount, values, threshold, tracker, gps_controller, mapping, window)
+    threshold = getThreshold(values['threshAmount'])
+    cameraAmount = getCameraAmount(values['cameraAmount'])
+    selectCamera(cameraAmount, values, threshold,
+                 tracker, gps_controller, mapping, window)
 
     # Upon exit, destroys all cameras and windows
     destory_camera_windows()
+
 
 if __name__ == '__main__':
     main()
