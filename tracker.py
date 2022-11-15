@@ -19,7 +19,7 @@ class EuclideanDistTracker:
         self.id_count = 0
 
     def getDetectionsList(self):
-        return detections_list
+        return self.detections_list
 
     def update(self, objects_rect, frame, gps_controller, mapping):
         # Objects boxes and ids
