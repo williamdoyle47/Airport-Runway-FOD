@@ -1,14 +1,4 @@
-import time
-import PySimpleGUI as sg
-from utility.detected_image_folder_funcs import *
-from utility.map_utils import *
 from gps_controller import *
-from threading import Thread
-from tracker import *
-from gui_comp import *
-from data_model_interactions import *
-from utility.gui_utils import *
-from main import *
 
 #def constants():
 

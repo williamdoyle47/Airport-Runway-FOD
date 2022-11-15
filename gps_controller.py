@@ -109,8 +109,6 @@ class GPS_Controller():
 if __name__ == "__main__":
 
     gps_controller = GPS_Controller()
-    # Sample reading from the GPS puck:
-    #raw_data = ['$GPGGA', '200634.000', '4530.5608', 'N', '09349.7112', 'W', '1', '07', '1.1', '318.4', 'M', '-31.0', 'M', '', '0000*60']
     raw_data = gps_controller.get_raw_gps()
     print(raw_data)
 
