@@ -43,8 +43,8 @@ class Detection:
     # For getting real coordinates from GPS device
     def get_position(self):
         try:
-            #coords = self.gps_controller.extract_coordinates()
-            coords = self.gps_controller.last_coords
+            coords = self.gps_controller.extract_coordinates()
+            #coords = self.gps_controller.last_coords
             return coords
         except:
             return None
