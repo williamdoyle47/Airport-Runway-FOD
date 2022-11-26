@@ -1,0 +1,144 @@
+:root {
+  --color-brand--1: #ffb545;
+  --color-brand--2: #00c46a;
+
+  --color-dark--1: #536572;
+  --color-dark--2: #42484d;
+  --color-light--1: #aaa;
+  --color-light--2: #ececec;
+  --color-light--3: rgb(214, 222, 224);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: inherit;
+}
+
+html {
+  font-size: 62.5%;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Manrope", sans-serif;
+  color: var(--color-light--2);
+  font-weight: 400;
+  line-height: 1.6;
+  height: 100vh;
+  overscroll-behavior-y: none;
+
+  background-color: #fff;
+  padding: 2.5rem;
+
+  display: flex;
+}
+
+/* GENERAL */
+a:link,
+a:visited {
+  color: var(--color-brand--1);
+}
+
+/* NAVIGATION */
+.navbar {
+  /* flex-basis: 8rem; */
+  display: grid;
+  /* display: contents; */
+  background-color: #eee;
+  overflow: hidden;
+}
+
+.navbar a {
+  float: left;
+  color: #000;
+  text-align: center;
+  padding: 34px 16px;
+  text-decoration: none;
+  font-size: 15px;
+}
+
+.navbar a:hover {
+  background-color: lightgreen;
+  color: #000;
+}
+
+.navbar a.active {
+  background-color: var(--color-brand--2);
+  color: white;
+}
+
+/* SIDEBAR */
+.sidebar {
+  flex-basis: 30rem;
+  background-color: var(--color-dark--1);
+  padding: 3rem 5rem 4rem 5rem;
+  display: flex;
+  flex-direction: column;
+}
+.options {
+  border-radius: 12px;
+  padding-top: 100%;
+}
+.button {
+  border-radius: 7px;
+  background-color: var(--color-brand--2); /* Green */
+  border: none;
+  width: 100%;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  transition-duration: 0.4s;
+  display: inline-block;
+  font-size: 16px;
+  display: grid;
+}
+.button:hover {
+  background-color: white; /* Green */
+  color: green;
+}
+
+/* MAP */
+#map {
+  flex: 1;
+  height: 100%;
+  background-color: var(--color-light--1);
+  display: block;
+}
+
+/* Popup width is defined in JS using options */
+.leaflet-popup .leaflet-popup-content-wrapper {
+  background-color: var(--color-dark--1);
+  color: var(--color-light--2);
+  border-radius: 5px;
+  padding-right: 0.6rem;
+}
+
+.leaflet-popup .leaflet-popup-content {
+  font-size: 1.5rem;
+}
+
+.leaflet-popup .leaflet-popup-tip {
+  background-color: var(--color-dark--1);
+}
+
+.running-popup .leaflet-popup-content-wrapper {
+  border-left: 5px solid var(--color-brand--2);
+}
+.cycling-popup .leaflet-popup-content-wrapper {
+  border-left: 5px solid var(--color-brand--1);
+}
+
+/* CAMERA */
+
+#cam {
+  flex: 1;
+  height: 100%;
+  background-color: var(--color-light--2);
+  display: none;
+}
+#videoE {
+  width: 100%;
+  height: 100%;
+}
