@@ -2,6 +2,7 @@ import numpy as np
 import tensorflow as tf
 import os
 from detection_modules.DetectionLogging import LogDetection
+from PIL import Image
 from object_detection.utils import label_map_util
 from object_detection.utils import visualization_utils as viz_utils
 from object_detection.builders import model_builder
@@ -60,6 +61,15 @@ class DetectionModel:
             min_score_thresh=.6,
             agnostic_mode=False)
         return image_np
+    
+    def bndcoords (self, im, detections):
+        im_width = im.width
+        im_height = im.height
+        xmin, ymin, xmax,ymax, = detections['detection_boxes'][1]
+        (x, x2, y, y2) = (xmin * im_width, xmax * im_width, ymin * im_height, ymax * im_height)
+        w = x2-x
+        h = y2-y
+        return x, y, w, h
 
     #Log interactions 
     def logging_detection(self, Detection):
@@ -69,6 +79,11 @@ class DetectionModel:
     def detection_controller(self, image_np):
         detections = self.make_detections(image_np)
         boundary_boxes = self.bndbox(image_np,detections)
+        im = PIL.Image.fromarray(image_np)
+        x1, y1, width, height = self.bndcoords(im, detections)
+        cropped = tf.image.crop_to_bounding_box(im, x1, y1, width, height)
+        cropped.save('C:\Users\williamdoyle\Documents\GitHub\Airport-Runway-FOD\detectionImages', 'JPEG')
+
 
         # fod_type = self.category_index[detections['detection_classes'][0]+1]["name"]
         # confidence_score = detections['detection_scores'][0] * 100
