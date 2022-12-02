@@ -10,6 +10,7 @@ from object_detection.utils import config_util
 
 class DetectionModel:
     def __init__(self):
+        self.pathnumber = 1
         self.label_map_name = "/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/Tensorflow/workspace/annotations/label_map.pbtxt"
         self.d2PathCkpt = '/Users/williamdoyle/Desktop/ssd_mobnet640'
         self.d2Config = '/Users/williamdoyle/Desktop/ssd_mobnet640/pipeline.config'
@@ -62,10 +63,11 @@ class DetectionModel:
             agnostic_mode=False)
         return image_np
     
-    def bndcoords (self, im, detections):
+    def bndcoords (self, image_np, detections):
+        im = Image.fromarray(image_np)
         im_width = im.width
         im_height = im.height
-        xmin, ymin, xmax,ymax, = detections['detection_boxes'][1]
+        xmin, ymin, xmax, ymax = detections['detection_boxes'][0]
         (x, x2, y, y2) = (xmin * im_width, xmax * im_width, ymin * im_height, ymax * im_height)
         w = x2-x
         h = y2-y
@@ -79,17 +81,18 @@ class DetectionModel:
     def detection_controller(self, image_np):
         detections = self.make_detections(image_np)
         boundary_boxes = self.bndbox(image_np,detections)
-        im = PIL.Image.fromarray(image_np)
-        x1, y1, width, height = self.bndcoords(im, detections)
-        cropped = tf.image.crop_to_bounding_box(im, x1, y1, width, height)
-        cropped.save('C:\Users\williamdoyle\Documents\GitHub\Airport-Runway-FOD\detectionImages', 'JPEG')
+        x1, y1, width, height = self.bndcoords(image_np, detections)
+        cropped_image = tf.image.crop_to_bounding_box(image_np, x1, y1, width, height)
 
 
         # fod_type = self.category_index[detections['detection_classes'][0]+1]["name"]
-        # confidence_score = detections['detection_scores'][0] * 100
+        confidence_score = detections['detection_scores'][0] * 100
 
-        # threshold = 60
-        # if confidence_score > threshold:
+        threshold = 60
+        if confidence_score > threshold:
+            cropped = Image.fromarray(cropped_image)
+            cropped.save('C:\Users\williamdoyle\Documents\GitHub\Airport-Runway-FOD\detectionImages\image'+ str(self.pathnumber) + '.jpg', 'JPEG')
+            self.pathnumber += 1
         #     detection = Detection(fod_type,"[0,0]",datetime.datetime.now(),float(confidence_score))
         #     self.logging_detection(detection)
 
