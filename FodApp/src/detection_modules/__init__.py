@@ -1,0 +1,2 @@
+from detection_modules.DetectionModel import DetectionModel
+from detection_modules.DetectionLogging import LogDetection
