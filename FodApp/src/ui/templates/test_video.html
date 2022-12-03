@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <div class="container">
+            <h3> Live Streaming </h3>
+            <img src="{{ url_for('video_feed') }}" width="50%">
+        </div>
+    </body>
+    <script>
+        function callme() {
+            //This promise will resolve when the network call succeeds
+            //Feel free to make a REST fetch using promises and assign it to networkPromise
+            var networkPromise = fetch('https://jsonplaceholder.typicode.com/todos/1');
+
+
+            //This promise will resolve when 2 seconds have passed
+            var timeOutPromise = new Promise(function (resolve, reject) {
+                // 2 Second delay
+                setTimeout(resolve, 2000, 'Timeout Done');
+            });
+
+            Promise.all(
+                [networkPromise, timeOutPromise]).then(function (values) {
+                    console.log("Atleast 2 secs + TTL (Network/server)");
+                    //Repeat
+                    callme();
+                });
+        }
+        callme();
+
+    </script>
+</html>
+
+<!-- <!DOCTYPE html>
+<html>
+
+<head>
+    <title>Live Streaming</title>
+</head>
+
+<body>
+    <img id="frame" src="">
+    <script>
+        let ws = new WebSocket("ws://localhost:8000/ws");
+        let image = document.getElementById("frame");
+        image.onload = function () {
+            URL.revokeObjectURL(this.src); // release the blob URL once the image is loaded
+        }
+        ws.onmessage = function (event) {
+            image.src = URL.createObjectURL(event.data);
+        };
+    </script>
+</body>
+
+</html> -->

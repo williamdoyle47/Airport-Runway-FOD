@@ -14,10 +14,11 @@ const sideCam = document.getElementById("sideCam");
 
 class App {
   #map; //adding # makes it private
-  #mapZoomLevel = 14;
+  #mapZoomLevel = 15.25;
   #mapEvent;
   #objects = [];
   #coords = [];
+  #markersLayer
 
   constructor() {
     // Get uers's position
@@ -25,19 +26,6 @@ class App {
     // this._getCamera();
 
     // apilist.addEventListener("click", this._moveToPopup.bind(this));
-  }
-
-  _getCamera() {
-    if (navigator.mediaDevices.getUserMedia) {
-      navigator.mediaDevices
-        .getUserMedia({ video: true })
-        .then(function (stream) {
-          showVideo.srcObject = stream;
-        })
-        .catch(function (_error) {
-          console.log("Something went wrong!");
-        });
-    }
   }
 
   _getPosition() {
@@ -57,9 +45,15 @@ class App {
     L.tileLayer("http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", {
       attribution: "",
     }).addTo(this.#map);
+    
 
-    // //Handling clicks on map
-    // this.#map.on("click", this._showEntry.bind(this));
+    this.#markersLayer = new L.LayerGroup(); //layer contain searched elements
+    this.#map.addLayer(this.#markersLayer);
+
+    // this._getApiData()
+
+    //call api to render all uncleaned points
+
   }
   // _renderLogData;
   _renderLog(data) {
@@ -88,8 +82,9 @@ class App {
     logs.insertAdjacentHTML("beforeend", html);
     logs.style.opacity = 1;
   }
+
   _getApiData() {
-    fetch("http://127.0.0.1:8000/logs")
+    fetch("http://127.0.0.1:8000/all_logs")
       .then((res) => {
         if (!res.ok) throw new Error(`cannot reach url ${res.status}`);
         return res.json();
@@ -102,16 +97,33 @@ class App {
         this.#objects.forEach((item) => {
           const id = item.map((log) => log.id);
           const coord = item.map((log) => log.coord);
+          const fod_type = item.map((log) => log.fod_type);
+          const image_path = item.map((log) => log.image_path);
           coord.forEach((point) => {
-            point.split(",");
-            const long = point.split(", ");
-            const addcoord = long.map(Number);
-            console.log(addcoord);
-            const marker = new L.marker(addcoord);
-            marker
-              .addTo(this.#map)
-              .bindPopup(`Fod details go here...`)
-              .openPopup();
+            point.split(",")
+            const long = point.split(", ")
+            const addcoord = long.map(Number)
+            console.log(addcoord)
+
+            var marker = new L.marker(addcoord).addTo(this.#markersLayer).bindPopup( "<p> Current temperature in " + fod_type + "</p>")
+            // marker
+            //   .addTo(this.#map)
+            //   .bindPopup('<p>You are here ' + fod_type + '</p>')
+
+              // displayedStories.forEach((marker, i) => {
+              //   const m = L.marker(marker.coords)
+              //     .addTo(map)
+              //     .bindPopup("I don't work")
+              //   markers.addLayer(m)
+              // });
+
+              // const markers2 = displayedStories2.map(story => L.marker(story.coords)
+              //   .bindPopup("I don't work2"))
+              // const storyMarkers = L.layerGroup(markers2).addTo(map);
+
+              // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              //   attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+              // }).addTo(map);
           });
         });
       })
@@ -140,19 +152,20 @@ async function getMedia() {
   }
 }
 
-function getCam() {
-  if (navigator.mediaDevices.getUserMedia) {
-    navigator.mediaDevices
-      .getUserMedia({ video: true })
-      .then(function (stream) {
-        video.srcObject = stream;
-      })
-      .catch(function (error) {
-        // console.log("No Camera access. Please allow access to continue");
-        alert("No Camera access. Please allow access to continue");
-      });
-  }
-}
+// function getCam() {
+//   if (navigator.mediaDevices.getUserMedia) {
+//     navigator.mediaDevices
+//       .getUserMedia({ video: true })
+//       .then(function (stream) {
+//         // video.srcObject = stream;
+//         console.log("Camera shared")
+//       })
+//       .catch(function (error) {
+//         // console.log("No Camera access. Please allow access to continue");
+//         alert("No Camera access. Please allow access to continue");
+//       });
+//   }
+// }
 
 function displayMap() {
   showMap.style.display = "block";
@@ -170,7 +183,7 @@ function displayCam() {
 }
 
 function swap() {
-  getCam();
+  // getCam();
   if (showVideo.style.display == "none") {
     displayCam();
   } else {
