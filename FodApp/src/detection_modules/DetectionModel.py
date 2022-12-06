@@ -21,8 +21,8 @@ class DetectionModel:
         self.threshold = .70
         self.url = "http://127.0.0.1:8000/add_fod"
         self.label_map_name = "/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/Tensorflow/workspace/annotations/label_map.pbtxt"
-        self.d2PathCkpt = '/Users/williamdoyle/Desktop/ssd_mobnet640'
-        self.d2Config = '/Users/williamdoyle/Desktop/ssd_mobnet640/pipeline.config'
+        self.d2PathCkpt = '/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/Tensorflow/workspace/workspace/models/ssd_mobnet640'
+        self.d2Config = '/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/Tensorflow/workspace/workspace/models/ssd_mobnet640/pipeline.config'
         self.load_model(self.label_map_name, self.d2PathCkpt, self.d2Config)
 
     def load_model(self, label_map_name, d2PathCkpt, d2Config):
@@ -36,7 +36,7 @@ class DetectionModel:
                 model=self.detection_model)
             # ensure up to date with current checkpoint
             self.ckpt.restore(os.path.join(
-                d2PathCkpt, 'ckpt-11')).expect_partial()
+                d2PathCkpt, 'ckpt-8')).expect_partial()
             self.category_index = label_map_util.create_category_index_from_labelmap(
                 label_map_name)
         except:

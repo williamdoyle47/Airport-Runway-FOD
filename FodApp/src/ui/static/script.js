@@ -14,11 +14,10 @@ const sideCam = document.getElementById("sideCam");
 
 class App {
   #map; //adding # makes it private
-  #mapZoomLevel = 15.25;
+  #mapZoomLevel = 14;
   #mapEvent;
   #objects = [];
   #coords = [];
-  #markersLayer
 
   constructor() {
     // Get uers's position
@@ -26,6 +25,19 @@ class App {
     // this._getCamera();
 
     // apilist.addEventListener("click", this._moveToPopup.bind(this));
+  }
+
+  _getCamera() {
+    if (navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices
+        .getUserMedia({ video: true })
+        .then(function (stream) {
+          showVideo.srcObject = stream;
+        })
+        .catch(function (_error) {
+          console.log("Something went wrong!");
+        });
+    }
   }
 
   _getPosition() {
@@ -45,14 +57,12 @@ class App {
     L.tileLayer("http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", {
       attribution: "",
     }).addTo(this.#map);
-    
 
-    // this._getApiData()
-
-    //call api to render all uncleaned points
-
+    // //Handling clicks on map
+    // this.#map.on("click", this._showEntry.bind(this));
   }
-  // _renderLogData;
+  // _renderLogData(data)
+
   _renderLog(data) {
     const html = `
     <ul class="objects_detected">
@@ -65,7 +75,7 @@ class App {
     <div class="object_row">
       Coords:
     </div>  <div class="object_row">
-    ${data.coord}
+    [${data.coord}]
     </div>
     <div class="object_row">
       Confidence:
@@ -79,9 +89,8 @@ class App {
     logs.insertAdjacentHTML("beforeend", html);
     logs.style.opacity = 1;
   }
-
   _getApiData() {
-    fetch("http://127.0.0.1:8000/all_logs")
+    fetch("http://127.0.0.1:8000/all_uncleaned")
       .then((res) => {
         if (!res.ok) throw new Error(`cannot reach url ${res.status}`);
         return res.json();
@@ -92,44 +101,47 @@ class App {
         });
         this.#objects.push(data);
         this.#objects.forEach((item) => {
+          /*
           const id = item.map((log) => log.id);
+          const imagePath = item.map((log) => log.image_path);
+          const timestamp = item.map((log) => log.timestamp);
+          */
+          const recAction = item.map((log) => log.recommended_action);
+          const confLvl = item.map((log) => log.confidence_level);
+
+          let marker;
+
+          let fod_type = item.map((log) => log.fod_type);
+
+          fod_type.forEach((title) => {
+            title.split(",");
+            const name = title;
+            console.log(name);
+          });
+
           const coord = item.map((log) => log.coord);
-          var fod_type = item.map((log) => log.fod_type);
-          const image_path = item.map((log) => log.image_path);
           coord.forEach((point) => {
-            point.split(",")
-            const long = point.split(", ")
-            const addcoord = long.map(Number)
-            console.log(addcoord)
-
-            var marker = new L.marker(addcoord).addTo(this.#map)
-            marker.addTo(this.#map).bindPopup(
-              L.popup({
-                maxWidth: 250,
-                mminWidth: 200,
-                closeOnClick: false,
-                className: `log-popup`,
-              }).setContent("<p>" + fod_type +"</p>")
-              
-            )
-            // marker
-            //   .addTo(this.#map)
-            //   .bindPopup('<p>You are here ' + fod_type + '</p>')
-
-              // displayedStories.forEach((marker, i) => {
-              //   const m = L.marker(marker.coords)
-              //     .addTo(map)
-              //     .bindPopup("I don't work")
-              //   markers.addLayer(m)
-              // });
-
-              // const markers2 = displayedStories2.map(story => L.marker(story.coords)
-              //   .bindPopup("I don't work2"))
-              // const storyMarkers = L.layerGroup(markers2).addTo(map);
-
-              // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-              //   attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-              // }).addTo(map);
+            point.split(",");
+            const long = point.split(", ");
+            const addcoord = long.map(Number);
+            // console.log(addcoord);
+            marker = new L.marker(addcoord);
+            marker
+              .addTo(this.#map)
+              .bindPopup(
+                L.popup({
+                  maxWidth: 250,
+                  minWidth: 200,
+                  closeOnClick: false,
+                  className: `log-popup`,
+                })
+              )
+              .setPopupContent(
+                `
+              Coords: [${addcoord}]
+              `
+              )
+              .openPopup();
           });
         });
       })
@@ -149,22 +161,21 @@ class App {
 const app = new App();
 
 // live video permission
-async function getMedia() {
-  tooltip.style.display = "none";
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-  } catch (err) {
-    alert("No Camera access. Please allow access to continue" + err);
-  }
-}
+// async function getMedia() {
+//   tooltip.style.display = "none";
+//   try {
+//     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+//   } catch (err) {
+//     alert("No Camera access. Please allow access to continue" + err);
+//   }
+// }
 
 // function getCam() {
 //   if (navigator.mediaDevices.getUserMedia) {
 //     navigator.mediaDevices
 //       .getUserMedia({ video: true })
 //       .then(function (stream) {
-//         // video.srcObject = stream;
-//         console.log("Camera shared")
+//         video.srcObject = stream;
 //       })
 //       .catch(function (error) {
 //         // console.log("No Camera access. Please allow access to continue");

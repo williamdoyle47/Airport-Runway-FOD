@@ -1,55 +1,28 @@
 item { 
-
-	name:'LuggageTag'
-
+	name:'bolt'
 	id:1
-
 }
-
 item { 
-
-	name:'glove'
-
+	name:'concrete'
 	id:2
-
 }
-
 item { 
-
-	name:'pen'
-
+	name:'nut'
 	id:3
-
 }
-
 item { 
-
-	name:'wood'
-
+	name:'pliers'
 	id:4
-
 }
-
 item { 
-
-	name:'metal'
-
+	name:'screwdriver'
 	id:5
-
 }
-
 item { 
-
-	name:'cloth'
-
+	name:'wood'
 	id:6
-
 }
-
 item { 
-
-	name:'screw'
-
+	name:'wrench'
 	id:7
-
 }
