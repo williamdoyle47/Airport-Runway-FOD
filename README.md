@@ -1,65 +1,57 @@
 # Airport-Runway-FOD
 
-Our software detects debris on runways with the help of a high definition camera and machine learning capabilities. It will be able to detect foreign object debris on runways quickly and efficiently, giving airport staff time to clean up runways and most importantly keep our travel plans on schedule. 
-
-In order to complete the task mentioned above there are a series of goals and objectives our software must include to make this technology into a reality. 
-
-To start, the goals we have identified as most important for this software to achieve or be capable of doing are as follows:
-
-* The ability to detect FOD on the runway including:
-    * Bolts, screws, tools, people, animals, and any other large debris
-* The implementation of a machine learning model to recognize FODs
-* The software useability to be friendly enough to be used by airport personnel 
-
-Along with these goals we have also identified the objectives that would be most important to keep track of throughout the development lifecycle of this software. These include:
-
-* Acquiring domain knowledge by talking to experts regarding FOD
-* Using machine learning to detect and recognize the FOD
-* Use phones/cameras/drones/datasets to train a model to detect common types of FOD
-* Use of notifications notifying airport personnel when FOD is located on a runway/tarmac
-
 ## Requirements
-* Python 3.8
-* Protoc
-* Tensorflow Object Detection API
+
+- Python 3.8
+- tensorflow 2.9.2
+- Protoc 3.19
+- Tensorflow Object Detection API
+- Cython
+- Numpy library
+- gcc compiler
 
 if you want to use your GPU:
-* Cuda 11.2
-* CUDDNN 8.2
+
+- Cuda 11.2
+- CUDDNN 8.2
 
 ## Installation
 
 The following video explains how to set up Tensorflow, and the general workflow for gathering data and training a model: https://youtu.be/yqkISICHH-U
 If you encounter any issues setting up the project, the video covers common issues and troubleshooting. Most errors can be resolved by using pip to install any missing packages.
 
+`git clone https://github.com/scaltintasli/Airport-Runway-FOD.git`
 
-```git clone https://github.com/scaltintasli/Airport-Runway-FOD.git```
+move into Tensorflow/models then run command
 
-```git clone https://github.com/tensorflow/models```
+`git clone https://github.com/tensorflow/models`
 
-```git clone https://github.com/nicknochnack/GenerateTFRecord```
+move into Tensorflow/workspace/scripts then run command
 
-```pip install -r requirements.txt```
+`git clone https://github.com/nicknochnack/GenerateTFRecord`
 
-```cd Tensorflow\models\research && protoc object_detection\protos\*.proto --python_out=. && copy object_detection\packages\tf2\setup.py setup.py && python setup.py build && python setup.py install```
+In order to generate a TFRecord file for training the model you must ensure you have linked it to a properly formatted and annotated (VOC format) image folder
 
-```cd Tensorflow/models/research/slim && pip install -e .```
+Run the following two commands in the dir above Tensorflow/ to install the object detection api and its needed dependencies
 
+`pip install -r requirements.txt`
+
+`cd Tensorflow\models\research && protoc object_detection\protos\*.proto --python_out=. && copy object_detection\packages\tf2\setup.py setup.py && python setup.py build && python setup.py install`
+
+`cd Tensorflow/models/research/slim && pip install -e .`
 
 ## Usage
 
 ### TRAINING
 
-Edit label list and add items to list(these label names should match with images labels and it is case sensetive). the list is there :https://github.com/scaltintasli/Airport-Runway-FOD/blob/main/train_image.py#L48
+Use the following jupyter notebook as a template for training, SSD_MOB_640_Training_and_Detection.ipynb. This file was designed for training using Google Colab with xml image annotaion in VOC format.
 
-Add images to test folder and train folder(with the .xml files)
-run ```python train_image.py```
- 
 ### DETECTION
 
-Edit load_train_model.py and make sure checkpoint number matches(Tensorflow\workspace\models\modelname)
+Ensure your camera is connected via usb, a web cam is okay although you should ensure that OpenCv2 is able to reach it.
+Run command `python FodApp/src/main.py` to start the web server and click on the localhost link to begin running the detection program. It will use your connected camera to detected FOD.
 
-run ```python load_train_model.py```
+Prior to detection one must ensure that the DetectionModel.py has a detection model to reference, by default we use a custom SSD_Mobnet_640 data model in `FodApp/src/Tensorflow/workspace/models/my_ssd_mobnet`.
+To modify the checkpoint, weights, labelmap paths to use your custome model, look into file `FodApp/src/detection_modules/DetectionModel.py` in the **init** variables. Beaware some object detection models arent fit to use for realtime applications.
 
-For live detection run ```python live_detection_GUI```
-For Manual test run ```python detect_image.py```
+For Manual test run `python FodApp/src/detection_modules/DetectionModel.py`

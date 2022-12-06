@@ -50,7 +50,7 @@ def get_db():
         db.close()
 
 
-# mount relevant dirs
+# mount relevant dirs -- clean upo
 templates = Jinja2Templates(
     directory="/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/ui/templates")
 app.mount("/static", StaticFiles(directory="/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/ui/static"), name="static")

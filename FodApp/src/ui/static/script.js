@@ -47,9 +47,6 @@ class App {
     }).addTo(this.#map);
     
 
-    this.#markersLayer = new L.LayerGroup(); //layer contain searched elements
-    this.#map.addLayer(this.#markersLayer);
-
     // this._getApiData()
 
     //call api to render all uncleaned points
@@ -97,7 +94,7 @@ class App {
         this.#objects.forEach((item) => {
           const id = item.map((log) => log.id);
           const coord = item.map((log) => log.coord);
-          const fod_type = item.map((log) => log.fod_type);
+          var fod_type = item.map((log) => log.fod_type);
           const image_path = item.map((log) => log.image_path);
           coord.forEach((point) => {
             point.split(",")
@@ -105,7 +102,16 @@ class App {
             const addcoord = long.map(Number)
             console.log(addcoord)
 
-            var marker = new L.marker(addcoord).addTo(this.#markersLayer).bindPopup( "<p> Current temperature in " + fod_type + "</p>")
+            var marker = new L.marker(addcoord).addTo(this.#map)
+            marker.addTo(this.#map).bindPopup(
+              L.popup({
+                maxWidth: 250,
+                mminWidth: 200,
+                closeOnClick: false,
+                className: `log-popup`,
+              }).setContent("<p>" + fod_type +"</p>")
+              
+            )
             // marker
             //   .addTo(this.#map)
             //   .bindPopup('<p>You are here ' + fod_type + '</p>')

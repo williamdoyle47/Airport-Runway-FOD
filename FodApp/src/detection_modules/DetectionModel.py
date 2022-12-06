@@ -11,6 +11,7 @@ from object_detection.utils import visualization_utils as viz_utils
 from object_detection.builders import model_builder
 from object_detection.utils import config_util
 import requests
+from detection_modules.coords import coords
 
 
 class DetectionModel:
@@ -87,74 +88,57 @@ class DetectionModel:
         return x, y, w, h
 
     # Log interactions
-    def logging_detection(self, Detection):
-        log_controller = LogDetection()
-        # add fod to db -- post request
-        log_controller.log_fod()
+    def logging_detection(self, detections, boundary_boxes):
+
+        confidence_score = detections['detection_scores'][0]
+
+        magnet = ['metal', 'screw']  # metallic objects
+        sweeping = ['pen', 'glove', 'cloth', 'LuggageTag']
+        rumble_strips = ['']
+        fod_containers = ['wood']
+
+        fod_type = self.category_index.get(
+            (detections['detection_classes'][0] + self.label_id_offset))['name']
+        image_path = "/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/data_modules/detectionImages/" + \
+            str(self.pathnumber) + '.jpg'  # generalize
+
+        cropped = Image.fromarray(boundary_boxes)
+        cropped.save(image_path, 'JPEG')
+        self.pathnumber += 1
+
+        cleaning_methods = [magnet, sweeping,
+                            rumble_strips, fod_containers]
+        rec_cleanup_method = any(
+            fod_type in sublist for sublist in cleaning_methods)
+
+        cleaned = False
+
+        coor = random.choice(coords)
+
+        image_path = "../../data_modules/detectionImages/" + \
+            str(self.pathnumber) + '.jpg'
+
+        det_json_obj = {'fod_type': str(fod_type),
+                        'coord': str(coor),
+                        'confidence_level': float(confidence_score),
+                        'image_path': str(image_path),
+                        'cleaned': bool(cleaned),
+                        'recommended_action': str(rec_cleanup_method)
+                        }
+        x = requests.post(self.url, json=det_json_obj)
+        print(x.text)
 
     def detection_controller(self, image_np):
         detections = self.make_detections(image_np)
         boundary_boxes = self.bndbox(image_np, detections)
+
         try:
             confidence_score = detections['detection_scores'][0]
             #cleaned = false
 
             if confidence_score > self.threshold:
 
-                fod_type = self.category_index.get(
-                    (detections['detection_classes'][0] + self.label_id_offset))['name']
-                image_path = "/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/data_modules/detectionImages" + \
-                    str(self.pathnumber) + '.jpg'  # generalize
-
-                cropped = Image.fromarray(boundary_boxes)
-                cropped.save(image_path, 'JPEG')
-                self.pathnumber += 1
-
-                magnet = ['metal', 'screw']  # metallic objects
-                sweeping = ['pen', 'glove', 'cloth', 'LuggageTag']
-                rumble_strips = ['']
-                fod_containers = ['wood']
-
-                cleaning_methods = [magnet, sweeping,
-                                    rumble_strips, fod_containers]
-                rec_cleanup_method = any(
-                    fod_type in sublist for sublist in cleaning_methods)
-
-                cleaned = False
-
-                coords = [
-                    '44.87462654456526, -93.23352374789656',
-
-                    '44.88583814551953, -93.23506109382541',
-
-                    '44.89137135265227, -93.20909505790712',
-
-                    '44.87643483672227, -93.20789571538998',
-
-                    '44.8724721221139, -93.23791428396207',
-
-                    '44.89221842098514, -93.20940715281053',
-
-                    '44.87974420507467, -93.21723957283892',
-
-                    '44.87909010759127, -93.21013319768998',
-
-                    '44.883046426535195, -93.22328360041249']
-
-                coor = random.choice(coords)
-
-                image_path = "../../data_modules/detectionImages/" + \
-                    str(self.pathnumber) + '.jpg'
-
-                det_json_obj = {'fod_type': str(fod_type),
-                                'coord': str(coor),
-                                'confidence_level': float(confidence_score),
-                                'image_path': str(image_path),
-                                'cleaned': bool(cleaned),
-                                'recommended_action': str(rec_cleanup_method)
-                                }
-                x = requests.post(self.url, json=det_json_obj)
-                print(x.text)
+                self.logging_detection(detections, boundary_boxes)
 
             # ensure we are looking at different detecion object -- future update
                 # if so create detection object
@@ -169,6 +153,7 @@ class DetectionModel:
             return boundary_boxes
 
 
+# FOR TESTING
 if __name__ == '__main__':
     print(os.getcwd())
     cap = cv2.VideoCapture(1)
@@ -192,3 +177,6 @@ if __name__ == '__main__':
 
     cap.release()
     cv2.destroyAllWindows()
+
+# some code borrowed from places such as stackoverflow.com
+# and https://www.youtube.com/watch?v=yqkISICHH-U&t=11619s
