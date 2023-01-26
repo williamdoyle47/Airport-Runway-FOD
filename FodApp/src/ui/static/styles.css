@@ -152,15 +152,18 @@ hr.rounded {
   background-color: var(--color-dark--1);
   color: var(--color-light--2);
   border-radius: 5px;
-  padding-right: 0.6rem;
+  /* padding-right: 0.6rem; */
 }
 
 .leaflet-popup .leaflet-popup-content {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
 }
 
 .leaflet-popup .leaflet-popup-tip {
   background-color: var(--color-dark--1);
+}
+#chkBox {
+  color: pink;
 }
 
 /* CAMERA */
