@@ -1,95 +1,59 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <link rel="shortcut icon" type="image/png" href="/icon.png" />
+<html>
 
-    <link
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap"
-      rel="stylesheet"
-    />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <link rel="shortcut icon" type="image/png" href="/icon.png" />
 
-    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet" />
 
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.2/dist/leaflet.css"
-      integrity="sha256-sA+zWATbFveLLNqWO2gtiw3HL/lh1giY/Inf1BJ0z14="
-      crossorigin=""
-    />
-    <script
-      defer
-      src="https://unpkg.com/leaflet@1.9.2/dist/leaflet.js"
-      integrity="sha256-o9N1jGDZrf5tS+Ft4gbIK7mYMipq9lqpVJ91xHSyKhg="
-      crossorigin=""
-    ></script>
+  <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}" />
 
-    <script
-      defer
-      src="https://kit.fontawesome.com/f49056e932.js"
-      crossorigin="anonymous"
-    ></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.2/dist/leaflet.css"
+    integrity="sha256-sA+zWATbFveLLNqWO2gtiw3HL/lh1giY/Inf1BJ0z14=" crossorigin="" />
+  <script defer src="https://unpkg.com/leaflet@1.9.2/dist/leaflet.js"
+    integrity="sha256-o9N1jGDZrf5tS+Ft4gbIK7mYMipq9lqpVJ91xHSyKhg=" crossorigin=""></script>
 
-    <script defer src="{{ url_for('static', path='/script.js') }}"></script>
-    <title>Detection Dashboard</title>
-  </head>
-  <body>
-    <div id="mySidepanel" class="sidepanel">
-      <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
-      <a href="/">Home</a>
-      <a href="cams" class="active">Cameras</a>
-      <a href="#Reports">Reports</a></li>
-      <a href="#"><i class="fa-solid fa-cog fa-spin fa-1x" style="--fa-animation-duration: 15s"></i></a>
-      <a href="#"><i class="fa-solid fa-user fa-1x"></i></a>
-    </div>
-    <div id="mySidenav" class="sidenav">
-      <a class="openbtn" onclick="openNav()"
-        ><i class="fa-solid fa-bars"></i
-      ></a>
-      <a href="#" class="tooltip"id="sideCam"onclick="swap()" class="button"
-      type="button"><i class="fa-solid fa-video"></i><span class="tooltiptext">Enable Cam</span></a>
-    </div>
+  <script defer src="https://kit.fontawesome.com/f49056e932.js" crossorigin="anonymous"></script>
 
-    <div class="sidebar">
-      <div class="options">
-        <br />
-        <div class="listlogs">
-          <!-- <h2 class="btn-api" onclick="app._getApiData()">Logs</h2> -->
-          <h2 class="btn-api" onclick="app._loadFod()">Logs</h2>
+  <title>Detection Dashboard</title>
+</head>
 
-          <div class="api">
-            <div class="logs">
+<body>
+  <div id="mySidepanel" class="sidepanel">
+    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
+    <a href="/">Home</a>
+    <a href="cams" class="active">Cameras</a>
+    <a href="#Reports">Reports</a></li>
+    <a href="#"><i class="fa-solid fa-cog fa-spin fa-1x" style="--fa-animation-duration: 15s"></i></a>
+    <a href="#"><i class="fa-solid fa-user fa-1x"></i></a>
+  </div>
+  <div id="mySidenav" class="sidenav">
+    <a class="openbtn" onclick="openNav()"><i class="fa-solid fa-bars"></i></a>
+    <a href="#" class="tooltip" id="sideCam" onclick="swap()" class="button" type="button"><i
+        class="fa-solid fa-video"></i><span class="tooltiptext">Enable Cam</span></a>
+  </div>
+
+  <div class="sidebar">
+    <div class="options">
+      <br />
+      <div class="listlogs">
+        <h2 class="btn-api" onclick="app._getApiData()">Logs</h2>
+        <div class="api">
+          <div class="logs">
             <br>
-                <!-- 
-                    <ul class="objects_detected">
-                    <div class="object_row">
-                        Item
-                    </div>
-                    <div class="object_row">
-                        type
-                    </div>
-                    <div class="object_row">
-                        coords
-                    </div>
-                    <div class="object_row">
-                        conf. lvl
-                    </div>
-                    </ul> 
-                -->
-            </div>
           </div>
         </div>
       </div>
     </div>
-    <!-- <div>gap</div> -->
-    <div id="map"></div>
-    <div id="cam">
-      <!-- <i class="fa-regular fa-map"></i> -->
-      <!-- <img id="frame" src=""> -->
-      <img src="{{ url_for('video_feed') }}" width="50%">
-
-    </div>
-  </body>
-</html>
+  </div>
+  <!-- <div>gap</div> -->
+  <div id="map"></div>
+  <div id="cam">
+    <!-- <i class="fa-regular fa-map"></i> -->
+    <img src="{{ url_for('video_feed') }}" width="50%">
+  </div>
+  <script defer src="{{ url_for('static', path='/script.js') }}"></script>
+</body>

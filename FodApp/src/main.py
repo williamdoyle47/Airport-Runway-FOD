@@ -103,6 +103,24 @@ def gen_frames():
                        b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket, db: Session = Depends(get_db)):
+    await websocket.accept()
+    while True:
+        try:
+            command = await websocket.receive_text()
+            if str(command) == "open":
+                # await asyncio.sleep(5)
+                obj = db.query(models.FOD).order_by(
+                    models.FOD.id.desc()).first()
+                json_compatible_item_data = jsonable_encoder(obj)
+                print(type(json_compatible_item_data))
+                await websocket.send_json(json_compatible_item_data)
+
+        except WebSocketDisconnect:
+            print("Socket Disconnected")
+
+
 # return reports template
 # @app.get("/reports")
 

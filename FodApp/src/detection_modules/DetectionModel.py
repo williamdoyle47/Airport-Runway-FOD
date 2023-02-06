@@ -20,6 +20,7 @@ class DetectionModel:
         self.label_id_offset = 1
         self.threshold = .70
         self.url = "http://127.0.0.1:8000/add_fod"
+        self.saved_model_path = "/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/Tensorflow/workspace/workspace/models/ssd_mobnet640/export/saved_model"
         self.label_map_name = "/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/Tensorflow/workspace/annotations/label_map.pbtxt"
         self.d2PathCkpt = '/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/Tensorflow/workspace/workspace/models/ssd_mobnet640'
         self.d2Config = '/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/Tensorflow/workspace/workspace/models/ssd_mobnet640/pipeline.config'
