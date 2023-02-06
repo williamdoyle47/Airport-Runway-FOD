@@ -4,7 +4,7 @@ import numpy as np
 import cv2
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect, HTTPException, Depends
 from fastapi.websockets import WebSocketState
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import ORJSONResponse, StreamingResponse
@@ -135,6 +135,17 @@ async def all_uncleaned_fod(db: Session = Depends(get_db)):
     return db.query(models.FOD).filter(models.FOD.cleaned == False).all()
 
 
+@app.get("/fod_img/{fod_uuid}")
+async def fod_img(fod_uuid: str):
+    return FileResponse("/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/data_modules/detectionImages/" + fod_uuid + ".jpg")
+    # need to make this path dynamic in future update
+
+
+@app.get("/fod/{fod_uuid}")
+async def fod_by_uuid(fod_uuid: str, db: Session = Depends(get_db)):
+    return db.query(models.FOD).filter(models.FOD.uuid == str(fod_uuid)).first()
+
+
 @app.post("/add_fod")
 async def create_log(fod: FOD, db: Session = Depends(get_db)):
     log_model = models.FOD()
@@ -152,25 +163,20 @@ async def create_log(fod: FOD, db: Session = Depends(get_db)):
     return fod
 
 
-@app.put('/{log_id}')
-def update_log(log_id: int, log: FOD, db: Session = Depends(get_db)):
-    log_model = db.query(models.Logs).filter(models.Logs.id == log_id).first()
+@app.patch("/mark_clean/{fod_uuid}")
+def mark_fod_clean(fod_uuid: str, db: Session = Depends(get_db)):
+    try:
+        fod_uuid = fod_uuid.replace('uuid=', '')
+        FOD = db.query(models.FOD).filter(
+            models.FOD.uuid == str(fod_uuid)).first()
+        if FOD is None:
+            raise HTTPException(status_code=404, detail="Fod uuid not found")
+        FOD.cleaned = True
+        db.commit()
+        return 200
 
-    if log_model is None:
-        raise HTTPException(
-            status_code=404,
-            detail=f"ID {log_id} : Does not exist"
-        )
-    log_model.fod_type = log.fod_type
-    log_model.coord = log.coord
-    log_model.confidence_level = log.confidence_level
-    log_model.image_path = log.image_path
-    log_model.recommended_action = log.recommended_action
-
-    db.add(log_model)
-    db.commit()
-
-    return log
+    except:
+        print("Error Occured")
 
 
 @app.delete('/{log_id}')
