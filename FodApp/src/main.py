@@ -16,6 +16,8 @@ from datetime import datetime
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from data_modules.models import FOD
+from fastapi.encoders import jsonable_encoder
+
 
 # init detection model
 detection_model = DetectionModel()
@@ -111,6 +113,7 @@ def gen_frames():
 
 class FOD(BaseModel):
     timestamp: datetime = Field(default=datetime.now())
+    uuid: str = Field()
     fod_type: str = Field(min_length=1)
     coord: str = Field(min_length=1, max_length=50)
     confidence_level: float = Field(gt=0, lt=101)
@@ -136,6 +139,7 @@ async def all_uncleaned_fod(db: Session = Depends(get_db)):
 async def create_log(fod: FOD, db: Session = Depends(get_db)):
     log_model = models.FOD()
     log_model.fod_type = fod.fod_type
+    log_model.uuid = fod.uuid
     log_model.timestamp = datetime.now()
     log_model.coord = fod.coord
     log_model.confidence_level = fod.confidence_level
