@@ -115,7 +115,18 @@ function renderLog(data) {
     logs.insertAdjacentHTML("beforeend", html);
     logs.style.opacity = 1;
   }
-
+  function notification(data) {
+    message = "A Object has been detected. It is of the class " + data.fod_type
+    if (Notification.permission !== 'granted') {
+      Notification.requestPermission();
+    } else {
+      const options = {
+        body: message,
+        dir: 'ltr',
+      };
+      const notification = new Notification('Notification', options);
+    };
+  }
 //Socket and Live Feed Functions
 socket = new WebSocket("ws://127.0.0.1:8000/ws");
 
@@ -135,6 +146,7 @@ socket.onmessage = function(event) {
   //add Data point to log
     renderLog(obj)
 
+    notifcation(obj)
 };
 
 socket.onclose = function(event) {
