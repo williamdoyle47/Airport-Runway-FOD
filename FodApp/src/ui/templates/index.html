@@ -31,16 +31,23 @@
     <a href="#"><i class="fa-solid fa-user fa-1x"></i></a>
   </div>
   <div id="mySidenav" class="sidenav">
+    <!-- Menu -->
     <a class="openbtn" onclick="openNav()"><i class="fa-solid fa-bars"></i></a>
-    <a href="#" class="tooltip" id="sideCam" onclick="swap()" class="button" type="button"><i
+    <!--Camera & map -->
+    <a class="tooltip" id="sideCam" onclick="swap()" class="button" type="button"><i
         class="fa-solid fa-video"></i><span class="tooltiptext">Enable Cam</span></a>
+    
+    <!-- Notifications -->
+    <a class="notification" id="sideNotif" onclick="map._loadAllFod()" class="button" type="button"><i
+      class="fa-regular fa-bell"></i><span class="badge" id="notifCount">!</span><span class="tooltiptext">Detections</span>
+    </a>
   </div>
 
   <div class="sidebar">
     <div class="options">
       <br />
       <div class="listlogs">
-        <h2 class="btn-api" onclick="app._getApiData()">Logs</h2>
+        <h2 class="btn-api" onclick="">Logs</h2>
         <div class="api">
           <div class="logs">
             <br>

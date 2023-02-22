@@ -72,7 +72,9 @@ a:visited {
   /* flex-basis: 30rem; */
   flex-basis: 31.89rem;
   background-color: var(--color-dark--1);
-  padding: 0.5rem 5rem 4rem 5rem;
+  /* padding: 0.5rem 5rem 4rem 5rem; */
+  padding: 0.5rem 4rem 3rem 4rem;
+
   display: flex;
   flex-direction: column;
   /* border-radius: 0 25px 25px 0px; */
@@ -87,6 +89,7 @@ a:visited {
   height: 490px;
   overflow-x: none;
   overflow-y: auto;
+  flex-direction: reverse;
 }
 .api::-webkit-scrollbar {
   display: none;
@@ -126,7 +129,7 @@ hr.rounded {
 .objects_detected {
   background-color: var(--color-dark--2);
   border-radius: 5px;
-  padding: 1.5rem 2.75rem;
+  padding: 1.3rem 2.5rem;
   margin-bottom: 1.75rem;
 
   display: grid;
@@ -359,6 +362,11 @@ hr.rounded {
   top: 80px;
   background-color: var(--color-brand--2);
 }
+
+#sideNotif {
+  top: 160px;
+  background-color: var(--color-brand--2);
+}
 .tooltip {
   position: relative;
   display: inline-block;
@@ -390,5 +398,49 @@ hr.rounded {
   border-color: transparent black transparent transparent;
 }
 .tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
+.notification .badge {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  padding: 5px 7px;
+  font-size: 14px;
+  border-radius: 50%;
+  background: red;
+  color: white;
+}
+.notification {
+  position: relative;
+  display: inline-block;
+}
+
+.notification .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  font-size: 12px;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  top: -5px;
+  left: 110%;
+}
+
+.notification .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 100%;
+  margin-top: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent black transparent transparent;
+}
+.notification:hover .tooltiptext {
   visibility: visible;
 }
