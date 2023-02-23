@@ -15,6 +15,11 @@ from object_detection.builders import model_builder
 from object_detection.utils import config_util
 import requests
 from detection_modules.coords import coords, magnet, sweeping, rumble_strips, fod_containers
+from detection_modules.tracker import *
+
+camera_Width = 480  # 320 # 480 # 720 # 1080 # 1620
+camera_Height = 360  # 240 # 360 # 540 # 810  # 1215
+frameSize = (camera_Width, camera_Height)
 
 
 class DetectionModel:
@@ -23,8 +28,9 @@ class DetectionModel:
         self.label_id_offset = 1
         self.threshold = .70
         self.url = "http://127.0.0.1:8000/add_fod"
-        self.saved_model_path = "/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/Tensorflow/workspace/workspace/models/ssd_mobnet640/export/saved_model"
+        self.saved_model_path = "/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/Tensorflow/workspace/models/ssd_mobnet640v2/export/saved_model"
         self.label_map_name = "/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/Tensorflow/workspace/annotations/label_map.pbtxt"
+        self.tracker = EuclideanDistTracker()
         self.load_model()
 
     def load_model(self):
@@ -60,6 +66,8 @@ class DetectionModel:
 
         return detections
 
+    # old bnd box
+
     def bndbox(self, image_np, detections):
 
         viz_utils.visualize_boxes_and_labels_on_image_array(
@@ -74,94 +82,44 @@ class DetectionModel:
             agnostic_mode=False)
         return image_np
 
-    # def bndcoords(self, image_np, detections):  # Crop image
-    #     im = Image.fromarray(image_np)
-    #     im_width = im.width
-    #     im_height = im.height
-    #     xmin, ymin, xmax, ymax = detections['detection_boxes'][0]
-    #     (x, x2, y, y2) = (xmin * im_width, xmax *
-    #                       im_width, ymin * im_height, ymax * im_height)
-    #     w = x2-x
-    #     h = y2-y
-    #     return x, y, w, h
-
-    def recommend_action(self, fod_type):
-        if fod_type in magnet:
-            rec_cleanup_method = 'magnet'
-        elif fod_type in sweeping:
-            rec_cleanup_method = 'sweeping'
-        elif fod_type in fod_containers:
-            rec_cleanup_method = 'fod_containers'
-        elif fod_type in rumble_strips:
-            rec_cleanup_method = 'rumble_strips'
-        else:
-            rec_cleanup_method = 'Not sure'
-        return rec_cleanup_method
-
-    def logging_detection(self, detections, boundary_boxes):
-
-        confidence_score = detections['detection_scores'][0]
-        fod_uuid = uuid.uuid4()
-
-        # store images by uuid
-        try:
-            magnet = ['metal', 'screw']  # metallic objects
-            sweeping = ['pen', 'glove', 'cloth', 'LuggageTag']
-            rumble_strips = ['']
-            fod_containers = ['wood']
-
-            fod_type = self.category_index.get(
-                (detections['detection_classes'][0] + self.label_id_offset))['name']  # get deteection class
-            image_path = "/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/data_modules/detectionImages/" + \
-                str(fod_uuid) + '.jpg'
-            cropped = Image.fromarray(boundary_boxes)
-            cropped.save(image_path, 'JPEG')
-        except:
-            print("exception occured in logging detection")
-            return
-
-        # Log detected fod to database using post request
-        rec_cleanup_method = self.recommend_action(fod_type)
-        cleaned = False
-        coor = random.choice(coords)
-
-        image_path = "/detectionImages/" + str(fod_uuid) + '.jpg'  # fix this
-        image_path = "../../data_modules/detectionImages/" + \
-            str(self.pathnumber) + '.jpg'
-
-        det_json_obj = {'fod_type': str(fod_type),
-                        'uuid': str(fod_uuid),
-                        'coord': str(coor),
-                        'confidence_level': float(confidence_score),
-                        'image_path': str(image_path),
-                        'cleaned': bool(cleaned),
-                        'recommended_action': str(rec_cleanup_method)
-                        }
-
-        try:
-            x = requests.post(self.url, json=det_json_obj)
-            print(x.text)
-        except:
-            pass
+    def findScore(self, scoreValues):  # finds the score of each detection
+        found = [i for i, e in enumerate(scoreValues) if e >= self.threshold]
+        return found
 
     def detection_controller(self, image_np):
-        detections = self.make_detections(image_np)
-        boundary_boxes = self.bndbox(image_np, detections)
-
         try:
-            confidence_score = detections['detection_scores'][0]
-            #cleaned = false
+            listDetections = []  # for tracker
+            detections = self.make_detections(
+                image_np)  # get detections from frame
 
-            if confidence_score > self.threshold:
-                # ensure we are looking at different detecion object -- future update
-                # if so create detection object
-                # call logging function()
-                self.logging_detection(detections, boundary_boxes)
+            # Gets the detection coordinates from the detections object and adds to array for tracking
+            positionList = self.findScore(
+                detections['detection_scores'])  # return
+            for position in positionList:
+                # detect --> [ymin, xmin, ymax, xmax]
+                detect = detections['detection_boxes'][position]
+                x, y, w, h = (
+                    detect[1] * camera_Width, detect[0] * camera_Height, detect[3] * camera_Width, detect[2] * camera_Height)
+                listDetections.append([x, y, w, h])
 
-            return boundary_boxes
+            frame = cv.resize(image_np, frameSize)
 
-        except IndexError:  # if there is no object in frame to detect
-            return boundary_boxes
+            # Object tracking and Detection Logging
+            boxes_ids = self.tracker.update(
+                listDetections, self.category_index, detections, frame)
+
+            # Add bnd boxes to detected object -- detection classes + id
+            for box_id in boxes_ids:
+                x, y, w, h, id = box_id
+                cv.putText(frame, self.category_index.get(
+                    (detections['detection_classes'][0] + self.label_id_offset))['name'] + " " + str(id), (int(x), int(y) - 15),
+                    cv.FONT_HERSHEY_PLAIN, 2, (255, 0, 0), 2)
+                cv.rectangle(frame, (int(x), int(y)),
+                             (int(w), int(h)), (0, 255, 0), 3)
+
+            return frame  # return frame
+        except:
+            return image_np  # return frmae even when no object detected
 
 
 # FOR TESTING
