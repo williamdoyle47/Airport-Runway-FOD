@@ -53,14 +53,16 @@
             <br>
           </div>
         </div>
+        
       </div>
+        
     </div>
+    <button onclick="toggleFeed()">Toggle Video Stream and Webcam Detection</button>
   </div>
   <!-- <div>gap</div> -->
   <div id="map"></div>
   <div id="cam">
     <!-- <i class="fa-regular fa-map"></i> -->
-    <img src="{{ url_for('video_feed') }}" width="50%">
   </div>
   <script defer src="{{ url_for('static', path='/script.js') }}"></script>
 </body>

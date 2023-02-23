@@ -13,6 +13,7 @@ const sideCam = document.getElementById("sideCam");
 const sideNotif = document.getElementById("sideNotif");
 const notifCount = document.getElementById("notifCount");
 
+
 const TIMEOUT_SEC = 10;
 
 class Map {
@@ -54,26 +55,26 @@ class Map {
   };
 
   //Find all available/uncleared FOD in API
-  _loadAllFod = async function () {
-    try {
-      // const data = fetch("http://127.0.0.1:8000/all_logs");
-      const data = fetch("http://127.0.0.1:8000/all_uncleaned");
-      const res = await Promise.race([data, this._timeout(TIMEOUT_SEC)]);
-      const dataRes = await res.json();
-      const fodCount = dataRes.length;
-      notifCount.innerHTML = fodCount;
+  // _loadAllFod = async function () {
+  //   try {
+  //     // const data = fetch("http://127.0.0.1:8000/all_logs");
+  //     const data = fetch("http://127.0.0.1:8000/all_uncleaned");
+  //     const res = await Promise.race([data, this._timeout(TIMEOUT_SEC)]);
+  //     const dataRes = await res.json();
+  //     const fodCount = dataRes.length;
+  //     notifCount.innerHTML = fodCount;
 
-      /* Display all uncleared FOD in side panel and the map*/
+  //     /* Display all uncleared FOD in side panel and the map*/
 
-      dataRes.forEach((fod) => {
-        this.addPoint(fod);
-        renderLog(fod);
-      });
-      if (!res.ok) throw new Error(`cannot reach url ${res.status}`);
-    } catch (err) {
-      throw err;
-    }
-  };
+  //     dataRes.forEach((fod) => {
+  //       this.addPoint(fod);
+  //       renderLog(fod);
+  //     });
+  //     if (!res.ok) throw new Error(`cannot reach url ${res.status}`);
+  //   } catch (err) {
+  //     throw err;
+  //   }
+  // };
 
   removeMark(dis, marker) {
     console.log(marker);
@@ -234,4 +235,18 @@ function closeNav() {
   sideCam.style.display = "block";
   form.style.display = "block";
   sideNotif.style.display = "block";
+}
+
+var vid_enabled = false;
+function toggleFeed(){
+  if (vid_enabled){
+    var video_feed = document.getElementById("video_feed"); 
+    showVideo.removeChild(video_feed)
+    vid_enabled = false;
+
+  }else{
+    img_tag = `<img id="video_feed" src="http://127.0.0.1:8000/video_feed" width="50%"></img>`
+    showVideo.insertAdjacentHTML('afterbegin', img_tag)
+    vid_enabled = true
+  }
 }
