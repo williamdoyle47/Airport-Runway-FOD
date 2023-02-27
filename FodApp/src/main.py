@@ -89,18 +89,23 @@ def gen_frames():
         with lock:
             success, frame = camera.read()
             if not success:
+                camera.release()
                 print("Not success")
                 break
             else:
                 image_np = np.array(frame)
 
-            # Model Interaction
-                frame = detection_model.detection_controller(image_np)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
 
-                ret, buffer = cv2.imencode('.jpg', frame)
-                frame = buffer.tobytes()
-                yield (b'--frame\r\n'
-                       b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+            # Model Interaction
+            frame = detection_model.detection_controller(image_np)
+
+            ret, buffer = cv2.imencode('.jpg', frame)
+            frame = buffer.tobytes()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+    camera.release()
 
 
 @app.websocket("/ws")
