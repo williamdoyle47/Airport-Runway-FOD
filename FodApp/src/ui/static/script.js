@@ -9,7 +9,7 @@ const video = document.getElementById("videoE");
 const switchButtons = document.getElementById("switchButtons");
 const sidePanel = document.getElementById("mySidepanel");
 const sideCam = document.getElementById("sideCam");
-
+const favicon = document.getElementById("favicon");
 
 
 class Map{
@@ -115,18 +115,14 @@ function renderLog(data) {
     logs.insertAdjacentHTML("beforeend", html);
     logs.style.opacity = 1;
   }
-  function notification(data) {
-    message = "A Object has been detected. It is of the class " + data.fod_type
-    if (Notification.permission !== 'granted') {
-      Notification.requestPermission();
-    } else {
-      const options = {
-        body: message,
-        dir: 'ltr',
-      };
-      const notification = new Notification('Notification', options);
-    };
+
+function notification() {
+  if (document.visibilityState === "hidden") {
+    favicon.setAttribute("href", "../static/img2.png");
+  } else {
+    favicon.setAttribute("href", "../static/img1.png");
   }
+}
 //Socket and Live Feed Functions
 socket = new WebSocket("ws://127.0.0.1:8000/ws");
 
@@ -146,7 +142,7 @@ socket.onmessage = function(event) {
   //add Data point to log
     renderLog(obj)
 
-    notifcation(obj)
+    notification()
 };
 
 socket.onclose = function(event) {
