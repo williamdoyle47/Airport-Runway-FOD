@@ -117,12 +117,20 @@ function renderLog(data) {
   }
 
 function notification() {
+  var audio = new Audio('../static/mixkit-long-pop-2358.wav');
   if (document.visibilityState === "hidden") {
     favicon.setAttribute("href", "../static/img2.png");
   } else {
-    favicon.setAttribute("href", "../static/img1.png");
+    audio.play();
   }
 }
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") {
+    favicon.setAttribute("href", "../static/img1.png");
+  }
+});
+
 //Socket and Live Feed Functions
 socket = new WebSocket("ws://127.0.0.1:8000/ws");
 

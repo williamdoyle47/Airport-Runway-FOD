@@ -23,8 +23,8 @@ class DetectionModel:
         self.label_id_offset = 1
         self.threshold = .70
         self.url = "http://127.0.0.1:8000/add_fod"
-        self.saved_model_path = "/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/Tensorflow/workspace/workspace/models/ssd_mobnet640/export/saved_model"
-        self.label_map_name = "/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/Tensorflow/workspace/annotations/label_map.pbtxt"
+        self.saved_model_path = "/Users/User/Documents/GitHub/Airport-Runway-FOD/FodApp/src/Tensorflow/workspace/workspace/models/ssd_mobnet640/export/saved_model"
+        self.label_map_name = "/Users/User/Documents/GitHub/Airport-Runway-FOD/FodApp/src/Tensorflow/workspace/annotations/label_map.pbtxt"
         self.load_model()
 
     def load_model(self):
@@ -112,7 +112,7 @@ class DetectionModel:
 
             fod_type = self.category_index.get(
                 (detections['detection_classes'][0] + self.label_id_offset))['name']  # get deteection class
-            image_path = "/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/data_modules/detectionImages/" + \
+            image_path = "/Users/User/Documents/GitHub/Airport-Runway-FOD/FodApp/src/data_modules/detectionImages/" + \
                 str(fod_uuid) + '.jpg'
             cropped = Image.fromarray(boundary_boxes)
             cropped.save(image_path, 'JPEG')

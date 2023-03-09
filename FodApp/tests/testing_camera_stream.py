@@ -24,8 +24,8 @@ if not camera.isOpened():
     print("Cannot open camera")
     exit()
 
-templates = Jinja2Templates(directory="/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/ui/templates")
-app.mount("/static", StaticFiles(directory="/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/ui/static"), name="static")
+templates = Jinja2Templates(directory="/Users/User/Documents/GitHub/Airport-Runway-FOD/FodApp/src/ui/templates")
+app.mount("/static", StaticFiles(directory="/Users/User/Documents/GitHub/Airport-Runway-FOD/FodApp/src/ui/static"), name="static")
 
 def gen_frames():
     while True:

@@ -54,8 +54,8 @@ def get_db():
 
 # mount relevant dirs -- clean upo
 templates = Jinja2Templates(
-    directory="/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/ui/templates")
-app.mount("/static", StaticFiles(directory="/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/ui/static"), name="static")
+    directory="/Users/User/Documents/GitHub/Airport-Runway-FOD/FodApp/src/ui/templates")
+app.mount("/static", StaticFiles(directory="/Users/User/Documents/GitHub/Airport-Runway-FOD/FodApp/src/ui/static"), name="static")
 
 # routes
 
@@ -81,7 +81,7 @@ def video_feed():
 
 
 def gen_frames():
-    camera = cv2.VideoCapture(1)
+    camera = cv2.VideoCapture(0)
     if not camera.isOpened():
         print("Cannot open camera")
         exit()
@@ -155,7 +155,7 @@ async def all_uncleaned_fod(db: Session = Depends(get_db)):
 
 @app.get("/fod_img/{fod_uuid}")
 async def fod_img(fod_uuid: str):
-    return FileResponse("/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/data_modules/detectionImages/" + fod_uuid + ".jpg")
+    return FileResponse("/Users/User/Documents/GitHub/Airport-Runway-FOD/FodApp/src/data_modules/detectionImages/" + fod_uuid + ".jpg")
     # need to make this path dynamic in future update
 
 
