@@ -6,6 +6,7 @@ import random
 import requests
 import uuid
 import numpy as np
+import pathlib
 from detection_modules.DetectionLogging import LogDetection
 from PIL import Image
 from object_detection.utils import label_map_util
@@ -23,8 +24,8 @@ class DetectionModel:
         self.label_id_offset = 1
         self.threshold = .70
         self.url = "http://127.0.0.1:8000/add_fod"
-        self.saved_model_path = "/Users/User/Documents/GitHub/Airport-Runway-FOD/FodApp/src/Tensorflow/workspace/workspace/models/ssd_mobnet640/export/saved_model"
-        self.label_map_name = "/Users/User/Documents/GitHub/Airport-Runway-FOD/FodApp/src/Tensorflow/workspace/annotations/label_map.pbtxt"
+        self.saved_model_path = pathlib.Path(__file__).parents[1].resolve().joinpath('Tensorflow/workspace/workspace/models/ssd_mobnet640/export/saved_model')
+        self.label_map_name = pathlib.Path(__file__).parents[1].resolve().joinpath('Tensorflow/workspace/annotations/label_map.pbtxt')
         self.load_model()
 
     def load_model(self):
@@ -112,8 +113,8 @@ class DetectionModel:
 
             fod_type = self.category_index.get(
                 (detections['detection_classes'][0] + self.label_id_offset))['name']  # get deteection class
-            image_path = "/Users/User/Documents/GitHub/Airport-Runway-FOD/FodApp/src/data_modules/detectionImages/" + \
-                str(fod_uuid) + '.jpg'
+            fod_uuid_full= str(fod_uuid) + '.jpg'
+            image_path = pathlib.Path(__file__).parents[1].resolve().joinpath('data_modules/detectionImages', fod_uuid_full)
             cropped = Image.fromarray(boundary_boxes)
             cropped.save(image_path, 'JPEG')
         except:
