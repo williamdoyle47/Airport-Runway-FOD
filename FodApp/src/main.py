@@ -54,8 +54,8 @@ def get_db():
 
 # mount relevant dirs -- clean upo
 templates = Jinja2Templates(
-    directory="/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/ui/templates")
-app.mount("/static", StaticFiles(directory="/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/ui/static"), name="static")
+    directory="/Users/casan/Airport-Runway-FOD/FodApp/src/ui/templates")
+app.mount("/static", StaticFiles(directory="/Users/casan/Airport-Runway-FOD/FodApp/src/ui/static"), name="static")
 
 # routes
 
@@ -73,6 +73,11 @@ def camera_testing(request: Request):
 @app.get("/cams")  # route to show multicam feature
 def multi_camera_view(request: Request):
     return templates.TemplateResponse("cams.html", {"request": request})
+
+@app.get("/reports")  # route to show multicam feature
+def multi_camera_view(request: Request):
+    return templates.TemplateResponse("reports.html", {"request": request})
+
 
 
 @app.get('/video_feed')
@@ -152,7 +157,6 @@ FODS = []
 def logs(db: Session = Depends(get_db)):
     return (db.query(models.FOD).all())
 
-
 @app.get("/all_uncleaned")
 async def all_uncleaned_fod(db: Session = Depends(get_db)):
     return db.query(models.FOD).filter(models.FOD.cleaned == False).all()
@@ -214,6 +218,52 @@ def delete_log(log_id: int, db: Session = Depends(get_db)):
     db.query(models.Logs).filter(models.Logs.id == log_id).delete()
 
     db.commit()
+
+
+############### SEPERATE LATER ##########
+
+#Reports
+
+from collections import Counter
+
+
+@app.get("/common_fod_type")
+def logs(db: Session = Depends(get_db)):
+    results = db.query(models.FOD).all()
+    typ_arr = []
+    for r in results:
+        typ_arr.append(r.fod_type)
+        # print(r.fod_type)
+    typ_num = len(typ_arr)
+    common = max(set(typ_arr), key = typ_arr.count)
+
+    print(typ_num)
+    print(common)
+
+    # return common
+    return typ_arr
+    # return (db.query(models.FOD).all())
+
+
+@app.get("/common_location")
+def logs(db: Session = Depends(get_db)):
+    results = db.query(models.FOD).all()
+    coords_arr =[]
+    for r in results:
+        coords_arr.append(r.coord)
+        # print(r.coord)
+    # coord_num = len(coords_arr)
+    common = max(set(coords_arr), key = coords_arr.count)
+    
+    #prints points and occurence of fod at that point. 
+    for x in set(coords_arr):
+        # print(x,coords_arr.count(x))
+        data = x,coords_arr.count(x)
+        print(data)
+
+    print(common)
+    return common
+    # return coords_arr
 
 
 if __name__ == '__main__':
