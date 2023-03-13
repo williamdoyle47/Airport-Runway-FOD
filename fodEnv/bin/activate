@@ -37,7 +37,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/fodEnv"
+VIRTUAL_ENV="/Users/User/Documents/GitHub/Airport-Runway-FOD/fodEnv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

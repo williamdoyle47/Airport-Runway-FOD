@@ -2,6 +2,7 @@ import uvicorn
 import threading
 import numpy as np
 import cv2
+import pathlib
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect, HTTPException, Depends
 from fastapi.websockets import WebSocketState
 from fastapi.responses import HTMLResponse, FileResponse
@@ -54,8 +55,8 @@ def get_db():
 
 # mount relevant dirs -- clean upo
 templates = Jinja2Templates(
-    directory="/Users/casan/Airport-Runway-FOD/FodApp/src/ui/templates")
-app.mount("/static", StaticFiles(directory="/Users/casan/Airport-Runway-FOD/FodApp/src/ui/static"), name="static")
+    directory=pathlib.Path(__file__).parent.resolve().joinpath('ui', 'templates'))
+app.mount("/static", StaticFiles(directory=pathlib.Path(__file__).parent.resolve().joinpath('ui', 'static')), name="static")
 
 # routes
 
@@ -86,7 +87,7 @@ def video_feed():
 
 
 def gen_frames():
-    camera = cv2.VideoCapture(1)
+    camera = cv2.VideoCapture(0)
     if not camera.isOpened():
         print("Cannot open camera")
         exit()
@@ -164,9 +165,9 @@ async def all_uncleaned_fod(db: Session = Depends(get_db)):
 
 @app.get("/fod_img/{fod_uuid}")
 async def fod_img(fod_uuid: str):
-    return FileResponse("/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/data_modules/detectionImages/" + fod_uuid + ".jpg")
+    fod_uuid_full = fod_uuid + ".jpg"
+    return FileResponse(pathlib.Path(__file__).parent.resolve().joinpath('data_modules', 'detectionImages', fod_uuid_full))
     # need to make this path dynamic in future update
-
 
 @app.get("/fod/{fod_uuid}")
 async def fod_by_uuid(fod_uuid: str, db: Session = Depends(get_db)):
