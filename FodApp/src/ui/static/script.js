@@ -10,6 +10,7 @@ const video = document.getElementById("videoE");
 const switchButtons = document.getElementById("switchButtons");
 const sidePanel = document.getElementById("mySidepanel");
 const sideCam = document.getElementById("sideCam");
+const favicon = document.getElementById("favicon");
 const sideNotif = document.getElementById("sideNotif");
 const notifCount = document.getElementById("notifCount");
 
@@ -162,6 +163,13 @@ function renderLog(data) {
   logs.style.opacity = 1;
 }
 
+function notification() {
+  if (document.visibilityState === "hidden") {
+    favicon.setAttribute("href", "../static/img2.png");
+  } else {
+    favicon.setAttribute("href", "../static/img1.png");
+  }
+}
 //Socket and Live Feed Functions
 socket = new WebSocket("ws://127.0.0.1:8000/ws");
 
@@ -179,8 +187,9 @@ socket.onmessage = function (event) {
   map.addPoint(obj);
 
   //add Data point to log
-  renderLog(obj);
-  // alert("new fod detected");
+    renderLog(obj)
+
+    notification()
 };
 
 socket.onclose = function (event) {
