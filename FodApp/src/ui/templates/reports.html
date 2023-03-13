@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <link rel="shortcut icon" type="image/png" href="/icon.png" />
+
+
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}" />
+
+
+  <script defer src="https://kit.fontawesome.com/f49056e932.js" crossorigin="anonymous"></script>
+
+
+
+  
+  <!---New-->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+  <!-- <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> -->
+
+
+
+  <!--Pyscript-->
+  <!-- <link rel="stylesheet" href="https://pyscript.net/releases/2022.12.1/pyscript.css" />
+  <script defer src="https://pyscript.net/releases/2022.12.1/pyscript.js"></script> -->
+
+
+  <title>Report Dashboard</title>
+</head>
+
+<body>
+  <div id="mySidepanel" class="sidepanel">
+    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
+    <a href="/">Home</a>
+    <a href="cams">Cameras</a>
+    <a href="reports" class="active">Reports</a></li>
+    <a href="#"><i class="fa-solid fa-cog fa-spin fa-1x" style="--fa-animation-duration: 15s"></i></a>
+    <a href="#"><i class="fa-solid fa-user fa-1x"></i></a>
+  </div>
+  <div id="mySidenav" class="sidenav">
+    <!-- Menu -->
+    <a class="openbtn" onclick="openNav()"><i class="fa-solid fa-bars"></i></a>
+    <!--Camera & map -->
+  </div>
+  <div class="sidebar">
+    <div class="options">
+      <br />
+      <div class="listlogs">
+        <h2 class="btn-api" onclick=""></h2>
+        <div class="api">
+          <div class="logs">
+            <br>
+            <p></p>
+          </div>
+        </div>
+        
+      </div>
+        
+    </div>
+  </div>
+  
+  <py-script></py-script>
+
+  <div class="col-sm-9">
+    <div class="well">
+      <h4 onclick="fodCount()">Fods Detected</h4>
+      <p class="fodCount">.</p>
+    </div>
+    <div class="row">
+      <div class="col-sm-3">
+        <div class="well">
+          <h4 onclick="commonFod()">Type</h4>
+          <p class="fodtype">.</p> 
+        </div>
+      </div>
+      <div class="col-sm-3">
+        <div class="well">
+          <h4 onclick="commonLocation()">Location </h4>
+          <p class="fodCoord">.</p> 
+        </div>
+      </div>
+      <div class="col-sm-3">
+        <div class="well">
+          <h4>Type/Location</h4>
+          <p>.</p> 
+        </div>
+      </div>
+      <div class="col-sm-3">
+        <div class="well">
+          <h4>Rate</h4>
+          <p>.</p> 
+        </div>
+      </div>
+    </div>
+
+    <hr>
+  <div class="w3-container">
+    <h5>Stats</h5>
+    <p>Common Fod types</p>
+    <div class="w3-grey">
+      <div class="w3-container w3-center w3-padding w3-green" style="width:25%">+25%</div>
+    </div>
+
+    <p>New Fod</p>
+    <div class="w3-grey">
+      <div class="w3-container w3-center w3-padding w3-orange" style="width:50%">50%</div>
+    </div>
+
+    <p>Cleared Fod</p>
+    <div class="w3-grey">
+      <div class="w3-container w3-center w3-padding w3-red" style="width:75%">75%</div>
+    </div>
+  </div>
+  <br>
+
+    <div class="row">
+      <div class="col-sm-4">
+        <div class="well">
+          <p></p> 
+          <p>Graph</p> 
+          <p></p> 
+        </div>
+      </div>
+      <div class="col-sm-4">
+        <div class="well">
+          <p></p> 
+          <p>Map</p> 
+          <p></p> 
+        </div>
+      </div>
+      <div class="col-sm-4">
+        <div class="well">
+          <p></p> 
+          <p>Image</p> 
+          <p></p> 
+        </div>
+      </div>
+    </div>
+  
+  </div>
+  <script defer src="{{ url_for('static', path='/report.js') }}"></script>
+
+</body>

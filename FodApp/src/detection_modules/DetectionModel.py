@@ -6,6 +6,7 @@ import random
 import requests
 import uuid
 import numpy as np
+import pathlib
 from detection_modules.DetectionLogging import LogDetection
 from PIL import Image
 from object_detection.utils import label_map_util
@@ -28,8 +29,8 @@ class DetectionModel:
         self.label_id_offset = 0
         self.threshold = .70
         self.url = "http://127.0.0.1:8000/add_fod"
-        self.saved_model_path = "/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/Tensorflow/workspace/models/ssd_mobnet640v2/export/saved_model"
-        self.label_map_name = "/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/Tensorflow/workspace/annotations/label_map.pbtxt"
+        self.saved_model_path = pathlib.Path(__file__).parents[1].resolve().joinpath('Tensorflow/workspace/models/ssd_mobnet640v2/export/saved_model')
+        self.label_map_name = pathlib.Path(__file__).parents[1].resolve().joinpath('Tensorflow/workspace/annotations/label_map.pbtxt')
         self.tracker = EuclideanDistTracker()
         self.load_model()
 
