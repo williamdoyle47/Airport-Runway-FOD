@@ -74,7 +74,7 @@ class EuclideanDistTracker:
 
                 # store fod images
                 fod_type = category_index.get(
-                    (detections['detection_classes'][0] + 1))['name']
+                    (detections['detection_classes'][0]))['name']
                 print(fod_type)  # get deteection class
                 image_path = "/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/data_modules/detectionImages/" + \
                     str(fod_uuid) + '.jpg'
