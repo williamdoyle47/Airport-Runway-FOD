@@ -235,14 +235,9 @@ def logs(db: Session = Depends(get_db)):
     for r in results:
         typ_arr.append(r.fod_type)
         # print(r.fod_type)
-    typ_num = len(typ_arr)
     common = max(set(typ_arr), key = typ_arr.count)
 
-    print(typ_num)
-    print(common)
-
-    # return common
-    return typ_arr
+    return common
 
 
 @app.get("/common_location")
@@ -251,19 +246,16 @@ def logs(db: Session = Depends(get_db)):
     coords_arr =[]
     for r in results:
         coords_arr.append(r.coord)
-        # print(r.coord)
-    # coord_num = len(coords_arr)
     common = max(set(coords_arr), key = coords_arr.count)
     
     #prints points and occurence of fod at that point. 
     for x in set(coords_arr):
-        # print(x,coords_arr.count(x))
-        data = x,coords_arr.count(x)
-        print(data)
+        print(x,coords_arr.count(x))
+        # data = x,coords_arr.count(x)
+        # # print(data)
 
-    print(common)
     return common
-    # return coords_arr
+
 
 
 if __name__ == '__main__':

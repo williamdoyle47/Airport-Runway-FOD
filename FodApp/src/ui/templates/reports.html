@@ -17,29 +17,13 @@
 
 
 
-  
-  <!---New-->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-
-  <!-- <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> -->
-
-
-
-  <!--Pyscript-->
-  <!-- <link rel="stylesheet" href="https://pyscript.net/releases/2022.12.1/pyscript.css" />
-  <script defer src="https://pyscript.net/releases/2022.12.1/pyscript.js"></script> -->
-
 
   <title>Report Dashboard</title>
 </head>
 
 <body>
-  <div id="mySidepanel" class="sidepanel">
-    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
+  <div id="mySidepanel" class="repsidepanel">
+    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()" style="color: black;">×</a>
     <a href="/">Home</a>
     <a href="cams">Cameras</a>
     <a href="reports" class="active">Reports</a></li>
@@ -49,125 +33,73 @@
   <div id="mySidenav" class="sidenav">
     <!-- Menu -->
     <a class="openbtn" onclick="openNav()"><i class="fa-solid fa-bars"></i></a>
-    <!--Camera & map -->
-  </div>
-  <div class="sidebar">
-    <div class="options">
-      <br />
-      <div class="listlogs">
-        <h2 class="btn-api" onclick=""></h2>
-        <div class="api">
-          <div class="logs">
-            <br>
-            <p onclick="generateAnalysis()">Generate Analysis</p>
-          </div>
-        </div>
-        
-      </div>
-        
-    </div>
-  </div>
+    <a class="tooltip" id="sideCam" onclick="generateAnalysis()" class="button" type="button"><i
+      class="fa-solid fa-video"></i><span class="tooltiptext">Common FOD</span></a>
   
-  <div class="col-sm-9">
-    <div class="well">
-      <h4>Fods Detected</h4>
-      <p class="fodCount"></p>
+  <!-- Notifications -->
+  <a class="notification" id="sideNotif" onclick="" class="button" type="button"><i
+    class="fa-regular fa-bell"></i><span class="tooltiptext">Generate Report</span>
+  </a>    <!--Camera & map -->
+  </div>
+  <div class="repsidebar">
+    <!-- <button class="repbutton" onclick="generateAnalysis()"></button> -->
+    
+  </div>
+  <div class="objectAnalysis">
+    <div class="dropdown">
+      <button class="dropbtn">Objects Detected</button>
+      <div class="dropdown-content">
+        <a>Bolt</a>
+        <a>Trash</a>
+        <a onclick="nut()">Nut</a>
+        <a>Luggage</a>
+        <a>Tire</a>
+      </div>
     </div>
     <hr>
+    <div class="commonfod">
 
-    <div class="row">
-      <div class="col-sm-3">
-        <div class="well">
-          <h4>Type</h4>
-          <p class="fodtype"></p> 
+      <div class="card">
+        <!-- <img src="img_avatar.png" alt="Avatar" style="width:100%"> -->
+        <div class="container">
+          <h4><b>Total FOD</b></h4>
+          <p class="fodCount">.</p>
         </div>
       </div>
-      <div class="col-sm-3">
-        <div class="well">
-          <h4 onclick="">Location </h4>
-          <p class="fodCoord"></p> 
+      <br>
+      <div class="card">
+        <!-- <img src="img_avatar.png" alt="Avatar" style="width:100%"> -->
+        <div class="container">
+          <h4><b>Common FOD</b></h4>
+          <p class="fodtype">.</p>
         </div>
       </div>
-      <div class="col-sm-3">
-        <div class="well">
-          <h4>Cleanup Time</h4>
-          <p class="fodtype"></p> 
+      <br>
+      <div class="card">
+        <!-- <img src="img_avatar.png" alt="Avatar" style="width:100%"> -->
+        <div class="container">
+          <h4><b>Common Location</b></h4>
+          <p class="fodCoord">.</p>
         </div>
       </div>
-      <!-- <div class="col-sm-3">
-        <div class="well">
-          <h4>Occurance</h4>
-          <p class="fodtype"></p> 
-        </div>
-      </div> -->
+      <br>
+
     </div>
-
     <hr>
-     - Drop down MN
-    <!-- <p>This</p>
-    <div class="container">
-      <div class="skills html">90%</div>
-    </div>
-    
-    <p></p>
-    <div class="container">
-      <div class="skills css">80%</div>
-    </div>
-    
-    <p></p>
-    <div class="container">
-      <div class="skills js">65%</div>
-    </div>
-    
-    <p></p>
-    <div class="container">
-      <div class="skills php">60%</div>
-    </div> -->
-  <!-- <div class="w3-container">
-    <h5>Stats</h5>
-    <p>Common Fod types</p>
-    <div class="w3-grey">
-      <div class="w3-container w3-center w3-padding w3-green" style="width:25%">+25%</div>
-    </div>
-
-    <p>New Fod</p>
-    <div class="w3-grey">
-      <div class="w3-container w3-center w3-padding w3-orange" style="width:50%">50%</div>
-    </div>
-
-    <p>Cleared Fod</p>
-    <div class="w3-grey">
-      <div class="w3-container w3-center w3-padding w3-red" style="width:75%">75%</div>
-    </div>
-  </div> -->
-  <br>
-  <hr>
-
-    <div class="row">
-      <div class="col-sm-4">
-        <div class="well">
-          <p></p> 
-          <p>Graph</p> 
-          <p></p> 
-        </div>
-      </div>
-      <div class="col-sm-4">
-        <!-- <div class="well">
-          <p></p> 
-          <p>Map</p> 
-          <p></p> 
-        </div> -->
-      </div>
-      <div class="col-sm-4">
-        generate report
-        <!-- <div class="well">
-          <p></p> 
-          <p>Image</p> 
-          <p></p> 
-        </div> -->
-      </div>
-    </div>
+  </div>
   
+  <div class="typeResults">
+    <table>
+      <tr>
+        <th>Id</th>
+        <th>Fod Type</th>
+        <th>Coordinate</th>
+        <th>Action</th>
+        <th>Date</th>
+        <th>Details</th>
+      </tr> 
+    </table>
+    
   </div>
   <script defer src="{{ url_for('static', path='/report.js') }}"></script>
 
