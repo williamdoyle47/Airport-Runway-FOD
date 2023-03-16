@@ -96,6 +96,14 @@ async function commonLocation() {
     throw err;
   }
 }
+
+//Generate anaylysis
+
+function generateAnalysis() {
+  fodCount();
+  commonFod();
+  commonLocation();
+}
 //Display Functions
 
 function openNav() {
