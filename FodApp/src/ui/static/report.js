@@ -106,3 +106,12 @@ function closeNav() {
   sidePanel.style.width = "0";
   mySidepanel.style.display = "block";
 }
+
+function openNav() {
+  sidePanel.style.width = "250px";
+  mySidepanel.style.display = "none";
+}
+function closeNav() {
+  sidePanel.style.width = "0";
+  mySidepanel.style.display = "block";
+}

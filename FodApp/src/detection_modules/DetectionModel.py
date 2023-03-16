@@ -4,6 +4,7 @@ import cv2
 import json
 import random
 import requests
+import pathlib
 import uuid
 import numpy as np
 import pathlib
@@ -29,8 +30,15 @@ class DetectionModel:
         self.label_id_offset = 0
         self.threshold = .70
         self.url = "http://127.0.0.1:8000/add_fod"
+<<<<<<< Updated upstream
         self.saved_model_path = pathlib.Path(__file__).parents[1].resolve().joinpath('Tensorflow/workspace/models/ssd_mobnet640v2/export/saved_model')
         self.label_map_name = pathlib.Path(__file__).parents[1].resolve().joinpath('Tensorflow/workspace/annotations/label_map.pbtxt')
+=======
+        self.saved_model_path = pathlib.Path(__file__).parents[1].resolve().joinpath(
+            'Tensorflow/workspace/workspace/models/ssd_mobnet640/export/saved_model')
+        self.label_map_name = pathlib.Path(__file__).parents[1].resolve().joinpath(
+            'Tensorflow/workspace/annotations/label_map.pbtxt')
+>>>>>>> Stashed changes
         self.tracker = EuclideanDistTracker()
         self.load_model()
 
