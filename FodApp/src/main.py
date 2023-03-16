@@ -242,7 +242,6 @@ def logs(db: Session = Depends(get_db)):
 
     # return common
     return typ_arr
-    # return (db.query(models.FOD).all())
 
 
 @app.get("/common_location")
