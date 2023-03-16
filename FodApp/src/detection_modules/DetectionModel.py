@@ -4,8 +4,10 @@ import cv2
 import json
 import random
 import requests
+import pathlib
 import uuid
 import numpy as np
+import pathlib
 from detection_modules.DetectionLogging import LogDetection
 from PIL import Image
 from object_detection.utils import label_map_util
@@ -25,11 +27,18 @@ frameSize = (camera_Width, camera_Height)
 class DetectionModel:
     def __init__(self):
         self.pathnumber = 1
-        self.label_id_offset = 1
+        self.label_id_offset = 0
         self.threshold = .70
         self.url = "http://127.0.0.1:8000/add_fod"
-        self.saved_model_path = "/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/Tensorflow/workspace/models/ssd_mobnet640v2/export/saved_model"
-        self.label_map_name = "/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/Tensorflow/workspace/annotations/label_map.pbtxt"
+<<<<<<< Updated upstream
+        self.saved_model_path = pathlib.Path(__file__).parents[1].resolve().joinpath('Tensorflow/workspace/models/ssd_mobnet640v2/export/saved_model')
+        self.label_map_name = pathlib.Path(__file__).parents[1].resolve().joinpath('Tensorflow/workspace/annotations/label_map.pbtxt')
+=======
+        self.saved_model_path = pathlib.Path(__file__).parents[1].resolve().joinpath(
+            'Tensorflow/workspace/workspace/models/ssd_mobnet640/export/saved_model')
+        self.label_map_name = pathlib.Path(__file__).parents[1].resolve().joinpath(
+            'Tensorflow/workspace/annotations/label_map.pbtxt')
+>>>>>>> Stashed changes
         self.tracker = EuclideanDistTracker()
         self.load_model()
 
@@ -87,6 +96,7 @@ class DetectionModel:
         return found
 
     def detection_controller(self, image_np):
+        print("durr")
         try:
             listDetections = []  # for tracker
             detections = self.make_detections(

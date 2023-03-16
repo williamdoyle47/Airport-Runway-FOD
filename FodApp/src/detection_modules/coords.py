@@ -53,7 +53,7 @@ coords = ['44.87462654456526, -93.23352374789656',
           '44.881442226589414, -93.19482611962972',
           '44.8743233038313, -93.20232821767866'
           ]
-magnet = ['metal', 'screw']  # metallic objects
+magnet = ['metal', 'screw', 'pliers']  # metallic objects
 sweeping = ['pen', 'glove', 'cloth', 'LuggageTag']
 rumble_strips = ['']
-fod_containers = ['wood']
+fod_containers = ['wood', 'pliers']
