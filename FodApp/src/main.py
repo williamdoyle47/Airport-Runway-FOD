@@ -18,6 +18,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from data_modules.models import FOD
 from fastapi.encoders import jsonable_encoder
+from generate_csv import *
 
 
 # init detection model
@@ -255,6 +256,14 @@ def logs(db: Session = Depends(get_db)):
         # # print(data)
 
     return common
+
+
+#Create CSV file
+@app.get("/generate_csv")
+def create_csv():
+    generate_fod_csv()
+
+    return("Fod CSV file generated")
 
 
 

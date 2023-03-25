@@ -529,6 +529,7 @@ hr.rounded {
   padding-top: 10px;
   padding-left: 5px;
   max-height: 350px;
+  position: relative;
 }
 
 .dropdown {
@@ -648,4 +649,79 @@ td {
 /* Add rounded corners to the top left and the top right corner of the image */
 img {
   border-radius: 5px 5px 0 0;
+}
+
+/* FOD Bar */
+
+/* Container for skill bars */
+.container {
+  width: 100%; /* Full width */
+  background-color: var(--color-light--2);
+  display: block;
+  text-decoration: none;
+}
+
+.skills {
+  text-align: right;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  color: #000;
+}
+
+.html {
+  width: 90%;
+  background-color: var(--color-brand--1);
+} /* Green */
+
+#picker {
+  font-size: 1rem;
+  text-align: center;
+}
+
+/* modal for view results display */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0, 0, 0); /* Fallback color */
+  background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 85%;
+}
+
+/* The Close Button */
+.close {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.csvtable {
+  border-collapse: collapse;
+}
+
+.csvtable td {
+  padding: 10px;
+  border: 1px solid black;
 }
