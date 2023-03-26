@@ -30,15 +30,10 @@ class DetectionModel:
         self.label_id_offset = 0
         self.threshold = .70
         self.url = "http://127.0.0.1:8000/add_fod"
-<<<<<<< Updated upstream
-        self.saved_model_path = pathlib.Path(__file__).parents[1].resolve().joinpath('Tensorflow/workspace/models/ssd_mobnet640v2/export/saved_model')
-        self.label_map_name = pathlib.Path(__file__).parents[1].resolve().joinpath('Tensorflow/workspace/annotations/label_map.pbtxt')
-=======
         self.saved_model_path = pathlib.Path(__file__).parents[1].resolve().joinpath(
-            'Tensorflow/workspace/workspace/models/ssd_mobnet640/export/saved_model')
+            'Tensorflow/workspace/models/ssd_mobnet640v2/export/saved_model')
         self.label_map_name = pathlib.Path(__file__).parents[1].resolve().joinpath(
             'Tensorflow/workspace/annotations/label_map.pbtxt')
->>>>>>> Stashed changes
         self.tracker = EuclideanDistTracker()
         self.load_model()
 
@@ -96,7 +91,6 @@ class DetectionModel:
         return found
 
     def detection_controller(self, image_np):
-        print("durr")
         try:
             listDetections = []  # for tracker
             detections = self.make_detections(
@@ -140,7 +134,7 @@ if __name__ == '__main__':
     while (cap.isOpened()):
 
         ret, frame = cap.read()
-        #cv2.namedWindow("window", cv2.WND_PROP_FULLSCREEN)
+        # cv2.namedWindow("window", cv2.WND_PROP_FULLSCREEN)
         # cv2.setWindowProperty("window",cv2.WND_PROP_FULLSCREEN,cv2.WINDOW_FULLSCREEN)
 
         if ret:
