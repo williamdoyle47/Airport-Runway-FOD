@@ -39,6 +39,7 @@ async function generateCSV() {
     const data = fetch("http://127.0.0.1:8000/generate_csv");
     const res = await Promise.race([data, timeout(TIMEOUT_SEC)]);
     const dataRes = await res.json();
+    alert(`CSV successfully created!`);
     console.log("CSV successfully created!");
 
     if (!res.ok) throw new Error(`cannot reach url ${res.status}`);
