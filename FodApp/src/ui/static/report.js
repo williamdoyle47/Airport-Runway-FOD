@@ -32,7 +32,20 @@ async function fodCount() {
     throw err;
   }
 }
+//generate fod file
 
+async function generateCSV() {
+  try {
+    const data = fetch("http://127.0.0.1:8000/generate_csv");
+    const res = await Promise.race([data, timeout(TIMEOUT_SEC)]);
+    const dataRes = await res.json();
+    console.log("CSV successfully created!");
+
+    if (!res.ok) throw new Error(`cannot reach url ${res.status}`);
+  } catch (err) {
+    throw err;
+  }
+}
 function renderTable(data) {
 
   var tbodyRef = document.getElementById('resultsTable').getElementsByTagName('tbody')[0];
@@ -253,3 +266,63 @@ function closeNav() {
   sidePanel.style.width = "0";
   mySidepanel.style.display = "block";
 }
+
+// Get the modal
+const modal = document.getElementById("myModal");
+
+// Get the button that opens the modal
+const btn = document.getElementById("myBtn");
+
+// Get the <span> element that closes the modal
+const span = document.getElementsByClassName("close")[0];
+
+// When the user clicks the button, open the modal
+btn.onclick = function () {
+  modal.style.display = "block";
+};
+
+// When the user clicks on <span> (x), close the modal
+span.onclick = function () {
+  modal.style.display = "none";
+};
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function (event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+};
+
+window.onload = () => {
+  //FILE READER + HTML ELEMENTS
+
+  var reader = new FileReader(),
+    picker = document.getElementById("picker"),
+    tablecsv = document.getElementById("tablecsv");
+
+  //Read CSV on file pick
+  picker.onchange = () => reader.readAsText(picker.files[0]);
+
+  // Read the csv file & generate HTML
+  reader.onloadend = () => {
+    let csv = reader.result;
+    console.log(csv);
+
+    tablecsv.innerHTML = "";
+
+    let rows = csv.split("\r\n");
+
+    //loop through
+    for (let row of rows) {
+      let cols = row.match(/(?:\"([^\"]*(?:\"\"[^\"]*)*)\")|([^\",]+)/g);
+      console.log(cols);
+      if (cols != null) {
+        let tr = tablecsv.insertRow();
+        for (let col of cols) {
+          let td = tr.insertCell();
+          td.innerHTML = col;
+        }
+      }
+    }
+  };
+};

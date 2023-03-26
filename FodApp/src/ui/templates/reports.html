@@ -114,6 +114,34 @@
       <p>Total Count for this Option: <p id="FODcountperclass"></p></p> 
     </div>
     <hr>
+    <div class="commonfod">
+      <div class="card">
+        <!-- <img src="img_avatar.png" alt="Avatar" style="width:100%"> -->
+        <div class="container">
+          <h4 onclick="generateCSV()"><b>Generate FOD file </b></h4>
+          <p class="fodCount"></p>
+        </div>
+      </div>
+      <br>
+      <div class="card">
+        <!-- <img src="img_avatar.png" alt="Avatar" style="width:100%"> -->
+        <div class="container">
+          <input type="file" accept=".csv" id="picker">
+          <p class="fodCount"></p>
+        </div>
+      </div>
+      <br>
+      <div class="card">
+        <!-- <img src="img_avatar.png" alt="Avatar" style="width:100%"> -->
+        <div class="container">
+          <h4 id="myBtn">View Generated report</h4>
+          <p class="fodCount"></p>
+        </div>
+      </div>
+      <br>
+      
+    </div>
+
   </div>
   
   <div class="typeResults">
@@ -134,6 +162,21 @@
     </table>
     
   </div>
+ 
+<!-- The Modal -->
+<div id="myModal" class="modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <span class="close">×</span>
+    <p></p>
+    <br>
+    <table class="csvtable" id="tablecsv"></table>
+
+  </div>
+
+</div>
+  
   <script defer src="{{ url_for('static', path='/report.js') }}"></script>
 
 </body> 
