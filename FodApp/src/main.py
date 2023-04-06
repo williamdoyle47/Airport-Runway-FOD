@@ -1,8 +1,10 @@
+from collections import Counter
 import uvicorn
 import threading
 import numpy as np
 import cv2
 import pathlib
+from sqlalchemy.sql import null
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect, HTTPException, Depends
 from fastapi.websockets import WebSocketState
 from fastapi.responses import HTMLResponse, FileResponse
@@ -13,7 +15,7 @@ from detection_modules.DetectionModel import DetectionModel
 from fastapi.middleware.cors import CORSMiddleware
 from data_modules import models
 from data_modules import engine, SessionLocal
-from datetime import datetime
+from datetime import datetime, timedelta
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from data_modules.models import FOD
@@ -57,7 +59,8 @@ def get_db():
 # mount relevant dirs -- clean upo
 templates = Jinja2Templates(
     directory=pathlib.Path(__file__).parent.resolve().joinpath('ui', 'templates'))
-app.mount("/static", StaticFiles(directory=pathlib.Path(__file__).parent.resolve().joinpath('ui', 'static')), name="static")
+app.mount("/static", StaticFiles(directory=pathlib.Path(__file__)
+          .parent.resolve().joinpath('ui', 'static')), name="static")
 
 # routes
 
@@ -76,10 +79,10 @@ def camera_testing(request: Request):
 def multi_camera_view(request: Request):
     return templates.TemplateResponse("cams.html", {"request": request})
 
+
 @app.get("/reports")  # route to show multicam feature
 def multi_camera_view(request: Request):
     return templates.TemplateResponse("reports.html", {"request": request})
-
 
 
 @app.get('/video_feed')
@@ -150,6 +153,7 @@ class FOD(BaseModel):
     image_path: str = Field(min_length=0, max_length=100)
     cleaned: bool = Field(default=False)
     recommended_action: str = Field(min_length=1, max_length=100)
+    cleaned_timestamp: datetime = Field(default=None)
 
 
 FODS = []
@@ -158,6 +162,7 @@ FODS = []
 @app.get("/all_logs")
 def logs(db: Session = Depends(get_db)):
     return (db.query(models.FOD).all())
+
 
 @app.get("/all_uncleaned")
 async def all_uncleaned_fod(db: Session = Depends(get_db)):
@@ -169,6 +174,7 @@ async def fod_img(fod_uuid: str):
     fod_uuid_full = fod_uuid + ".jpg"
     return FileResponse(pathlib.Path(__file__).parent.resolve().joinpath('data_modules', 'detectionImages', fod_uuid_full))
     # need to make this path dynamic in future update
+
 
 @app.get("/fod/{fod_uuid}")
 async def fod_by_uuid(fod_uuid: str, db: Session = Depends(get_db)):
@@ -186,6 +192,7 @@ async def create_log(fod: FOD, db: Session = Depends(get_db)):
     log_model.image_path = fod.image_path
     log_model.cleaned = fod.cleaned
     log_model.recommended_action = fod.recommended_action
+    log_model.cleaned_timestamp = None
 
     db.add(log_model)
     db.commit()
@@ -201,6 +208,7 @@ def mark_fod_clean(fod_uuid: str, db: Session = Depends(get_db)):
         if FOD is None:
             raise HTTPException(status_code=404, detail="Fod uuid not found")
         FOD.cleaned = True
+        FOD.cleaned_timestamp = datetime.now()
         db.commit()
         return 200
 
@@ -224,9 +232,7 @@ def delete_log(log_id: int, db: Session = Depends(get_db)):
 
 ############### SEPERATE LATER ##########
 
-#Reports
-
-from collections import Counter
+# Reports
 
 
 @app.get("/common_fod_type")
@@ -236,36 +242,62 @@ def logs(db: Session = Depends(get_db)):
     for r in results:
         typ_arr.append(r.fod_type)
         # print(r.fod_type)
-    common = max(set(typ_arr), key = typ_arr.count)
+    common = max(set(typ_arr), key=typ_arr.count)
 
     return common
+
+
+@app.get("/total_unclean")
+def logs(db: Session = Depends(get_db)):
+    results = db.query(models.FOD).all()
+    typ_arr = []
+    for r in results:
+        if (r.cleaned == False):
+            typ_arr.append(r.fod_type)
+        # print(r.fod_type)
+
+    return len(typ_arr)
+
+
+@app.get("/avg_cleanup_time")
+def logs(db: Session = Depends(get_db)):
+    results = db.query(models.FOD).all()
+    cleanup_arr = []
+    for r in results:
+        if r.cleaned_timestamp != None:
+            time_diff = r.cleaned_timestamp - r.timestamp
+            cleanup_arr.append(time_diff)
+            print(time_diff)
+    average_timedelta = sum(
+        cleanup_arr, timedelta(0)) / len(cleanup_arr)
+    average_timedelta = str(average_timedelta)
+    return average_timedelta
 
 
 @app.get("/common_location")
 def logs(db: Session = Depends(get_db)):
     results = db.query(models.FOD).all()
-    coords_arr =[]
+    coords_arr = []
     for r in results:
         coords_arr.append(r.coord)
-    common = max(set(coords_arr), key = coords_arr.count)
-    
-    #prints points and occurence of fod at that point. 
-    for x in set(coords_arr):
-        print(x,coords_arr.count(x))
-        # data = x,coords_arr.count(x)
-        # # print(data)
+    common = max(set(coords_arr), key=coords_arr.count)
+
+    # prints points and occurence of fod at that point.
+    # for x in set(coords_arr):
+    #     print(x, coords_arr.count(x))
+    # data = x,coords_arr.count(x)
+    # # print(data)
 
     return common
 
 
-#Create CSV file
+# Create CSV file
 @app.get("/generate_csv")
 def create_csv():
     generate_fod_csv()
 
-    return("Fod CSV file generated")
-
+    return ("Fod CSV file generated")
 
 
 if __name__ == '__main__':
-    uvicorn.run("main:app", reload=True)
+    uvicorn.run("main:app", reload=True, host="127.0.0.1", port=8000)

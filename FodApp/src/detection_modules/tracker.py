@@ -7,6 +7,7 @@ import datetime
 import requests
 import uuid
 from object_detection.utils import label_map_util
+import pathlib
 from PIL import Image
 from detection_modules.coords import coords, magnet, sweeping, rumble_strips, fod_containers
 import random
@@ -54,7 +55,7 @@ class EuclideanDistTracker:
             same_object_detected = False
             for id, pt in self.center_points.items():
                 dist = math.hypot(cx - pt[0], cy - pt[1])
-                #print(id, " ", dist)
+                # print(id, " ", dist)
                 # Might need to change the dist < number based on speed
                 if dist < 150:
                     self.center_points[id] = (cx, cy)
@@ -71,13 +72,14 @@ class EuclideanDistTracker:
                 print("Detection made w/ id: " + str(self.id_count))
 
                 fod_uuid = uuid.uuid4()
+                fod_uuid_full = str(fod_uuid) + '.jpg'
 
                 # store fod images
                 fod_type = category_index.get(
                     (detections['detection_classes'][0]))['name']
-                print(fod_type)  # get deteection class
-                image_path = "/Users/williamdoyle/Documents/GitHub/Airport-Runway-FOD/FodApp/src/data_modules/detectionImages/" + \
-                    str(fod_uuid) + '.jpg'
+                # print(fod_type)  # get deteection class
+                image_path = pathlib.Path(__file__).parents[1].resolve().joinpath(
+                    'data_modules/detectionImages', fod_uuid_full)
                 plt.imshow(cv.cvtColor(frame, cv.COLOR_BGR2RGB))
                 plt.savefig(image_path)
 

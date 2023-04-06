@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean
+from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean, Null
 from data_modules.database import Base
 
 
@@ -14,3 +14,5 @@ class FOD(Base):
     image_path = Column(String)
     cleaned = Column(Boolean, default=False)
     recommended_action = Column(String)
+    cleaned_timestamp = Column(
+        DateTime, nullable=True)

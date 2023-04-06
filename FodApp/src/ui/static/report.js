@@ -1,7 +1,9 @@
 const mySidepanel = document.querySelector(".openbtn");
 const foddCount = document.querySelector(".fodCount");
+const unCleanFodCount = document.querySelector(".unCleanfodCount");
 const fodtype = document.querySelector(".fodtype");
 const fodCoord = document.querySelector(".fodCoord");
+const fodCleanup = document.querySelector(".fodcleanup");
 const typeResults = document.querySelector(".typeResults");
 const sidePanel = document.getElementById("mySidepanel");
 
@@ -37,6 +39,7 @@ async function generateCSV() {
     const data = fetch("http://127.0.0.1:8000/generate_csv");
     const res = await Promise.race([data, timeout(TIMEOUT_SEC)]);
     const dataRes = await res.json();
+    alert(`CSV successfully created!`);
     console.log("CSV successfully created!");
 
     if (!res.ok) throw new Error(`cannot reach url ${res.status}`);
@@ -45,32 +48,111 @@ async function generateCSV() {
   }
 }
 function renderTable(data) {
-  const html = `
-  <table>
-    <tr>
-      <td>${data.id}</td>
-      <td>${data.fod_type}</td>
-      <td>${data.coord}</td>
-      <td>${data.recommended_action}</td>
-      <td>${data.timestamp.split("T")[0]}</td>
-      <td>Details...</td>
-    </tr> 
-  </table>
-  `;
-  typeResults.insertAdjacentHTML("beforeend", html);
+
+  var tbodyRef = document.getElementById('resultsTable').getElementsByTagName('tbody')[0];
+  var newRow = tbodyRef.insertRow();
+
+  var newCell = newRow.insertCell();
+  var newText = document.createTextNode(data.uuid);
+  newCell.appendChild(newText);
+
+  var newCell = newRow.insertCell();
+  var newText = document.createTextNode(data.fod_type);
+  newCell.appendChild(newText);
+
+  var newCell = newRow.insertCell();
+  var newText = document.createTextNode(data.coord);
+  newCell.appendChild(newText);
+
+
+  var newCell = newRow.insertCell();
+  var newText = document.createTextNode(data.recommended_action);
+  newCell.appendChild(newText);
+
+
+  var newCell = newRow.insertCell();
+  var newText = document.createTextNode(data.timestamp.split("T")[0]);
+  newCell.appendChild(newText);
+
+  var newCell = newRow.insertCell();
+  var newText = document.createTextNode(data.timestamp.split("T")[1]);
+  newCell.appendChild(newText);
+
+  var newCell = newRow.insertCell();
+  var newText = document.createTextNode(`${data.cleaned_timestamp ? data.cleaned_timestamp: "N/A"}`);
+  newCell.appendChild(newText);
 }
-async function nut() {
+
+
+// this is obv not ideal code as we repeat ourselves for every each class of FOD -- fix later
+async function nut(fodType) {
   try {
+    var dateControl = document.querySelector('input[type="date"]');
+
+    console.log(dateControl.value)
     const data = fetch("http://127.0.0.1:8000/all_logs");
     const res = await Promise.race([data, timeout(TIMEOUT_SEC)]);
-    const dataRes = await res.json();
+    var topCount;//leave as var as it will be redefined
+    var dataRes = await res.json();
 
-    //filter the 'Nut'
-    const nut = dataRes.filter((nut) => nut.fod_type === "nut");
-    const topfive = nut.slice(0, 5);
-    console.log(topfive);
-    topfive.forEach((fodtp) => {
-      console.log(fodtp);
+    if(dateControl.value){
+      dataRes = dataRes.filter((fod) => fod.timestamp.split("T")[0] === dateControl.value);
+      console.log("Filtering by date...")
+    }
+
+
+    if (fodType == 'all'){
+        topCount = dataRes.slice(0, 40);
+    }
+
+    if (fodType == 'nut'){
+      var fod = dataRes.filter((nut) => nut.fod_type === "nut");
+      // var fod = dataRes.filter((nut) => nut.fod_type === "nut");
+      //filter by date value
+      topCount = fod.slice(0, 20);
+    }
+
+    if (fodType == 'bolt'){
+      const fod = dataRes.filter((nut) => nut.fod_type === "bolt");
+      topCount = fod.slice(0, 20);
+    }
+
+    if (fodType == 'wrench'){
+      const fod = dataRes.filter((nut) => nut.fod_type === "wrench");
+      topCount = fod.slice(0, 20);
+    }
+
+    if (fodType == 'concrete'){
+      const fod = dataRes.filter((nut) => nut.fod_type === "concrete");
+      topCount = fod.slice(0, 20);
+    }
+    if (fodType == 'pliers'){
+      const fod = dataRes.filter((nut) => nut.fod_type === "pliers");
+      topCount = fod.slice(0, 20);
+    }
+    if (fodType == 'screwdriver'){
+      const fod = dataRes.filter((nut) => nut.fod_type === "screwdriver");
+      topCount = fod.slice(0, 20);
+    }
+    if (fodType == 'wood'){
+      const fod = dataRes.filter((nut) => nut.fod_type === "wood");
+      topCount = fod.slice(0, 20);
+    }
+
+    var tbodyRef = document.getElementById('resultsTable').getElementsByTagName('tbody')[0];
+
+    var new_tbody = document.createElement('tbody');
+    
+
+    tbodyRef.parentNode.replaceChild(new_tbody, tbodyRef)
+
+    var FODcountperclass = document.getElementById("FODcountperclass");
+
+    FODcountperclass.innerHTML = topCount.length
+
+    new_tbody.setAttribute("id", "resultsTableBody");
+    
+    topCount.forEach((fodtp) => {
       renderTable(fodtp);
     });
 
@@ -113,6 +195,21 @@ async function commonFod() {
     throw err;
   }
 }
+
+async function avgCleanUpTime(){
+  try {
+    const data = fetch("http://127.0.0.1:8000/avg_cleanup_time");
+    const res = await Promise.race([data, timeout(TIMEOUT_SEC)]);
+    const dataRes = await res.json();
+    console.log(dataRes)
+    fodCleanup.innerHTML = dataRes;
+
+    if (!res.ok) throw new Error(`cannot reach url ${res.status}`);
+  } catch (err) {
+    throw err;
+  }
+}
+
 async function commonLocation() {
   try {
     const data = fetch("http://127.0.0.1:8000/common_location");
@@ -121,27 +218,20 @@ async function commonLocation() {
     console.log(dataRes);
     fodCoord.innerHTML = dataRes;
 
-    /*
-    //Show most common coord
+    if (!res.ok) throw new Error(`cannot reach url ${res.status}`);
+  } catch (err) {
+    throw err;
+  }
+}
 
-    let mostFreq = 1;
-    let count = 0;
-    let coordLocal;
 
-    for (let i = 0; i < dataRes.length; i++) {
-      for (let j = i; j < dataRes.length; j++) {
-        if (dataRes[i] == dataRes[j]) count++;
-        if (mostFreq < count) {
-          mostFreq = count;
-          coordLocal = dataRes[i];
-          fodCoord.innerHTML = coordLocal;
-          console.log(coordLocal, count);
-        }
-      }
-      count = 0;
-    }
-    console.log(coordLocal);
-    */
+async function totalUncleanFod() {
+  try {
+    const data = fetch("http://127.0.0.1:8000/total_unclean");
+    const res = await Promise.race([data, timeout(TIMEOUT_SEC)]);
+    const dataRes = await res.json();
+    console.log(dataRes);
+    unCleanFodCount.innerHTML = dataRes;
 
     if (!res.ok) throw new Error(`cannot reach url ${res.status}`);
   } catch (err) {
@@ -153,8 +243,10 @@ async function commonLocation() {
 
 function generateAnalysis() {
   fodCount();
+  totalUncleanFod();
   commonFod();
   commonLocation();
+  avgCleanUpTime();
 }
 //Display Functions
 
