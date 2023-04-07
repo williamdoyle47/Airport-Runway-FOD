@@ -3,6 +3,7 @@ import uvicorn
 import threading
 import numpy as np
 import cv2
+import json
 import pathlib
 from sqlalchemy.sql import null
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect, HTTPException, Depends
@@ -21,7 +22,10 @@ from sqlalchemy.orm import Session
 from data_modules.models import FOD
 from fastapi.encoders import jsonable_encoder
 from generate_csv import *
-
+from starlette.applications import Starlette
+from starlette.routing import Route
+from sse_starlette.sse import EventSourceResponse
+import asyncio
 
 # init detection model
 detection_model = DetectionModel()
@@ -85,6 +89,56 @@ def multi_camera_view(request: Request):
     return templates.TemplateResponse("reports.html", {"request": request})
 
 
+MESSAGE_STREAM_DELAY = 1  # second
+MESSAGE_STREAM_RETRY_TIMEOUT = 15000  # milisecond
+
+
+@app.get('/stream')
+async def message_stream(request: Request, db: Session = Depends(get_db)):
+    latest_detections = []
+    obj = db.query(models.FOD).order_by(
+        models.FOD.id.desc()).first()
+    print("first")
+    json_compatible_item_data = jsonable_encoder(obj)
+    json_compatible_item_data = json.dumps(json_compatible_item_data)
+    latest_detections.append(json_compatible_item_data)
+
+    def new_messages():
+        obj = db.query(models.FOD).order_by(
+            models.FOD.id.desc()).first()
+        json_compatible_item_data = jsonable_encoder(obj)
+        json_compatible_item_data = json.dumps(json_compatible_item_data)
+        print("second")
+        if json_compatible_item_data != latest_detections[-1]:
+            latest_detections.append(json_compatible_item_data)
+            print("==== third === ")
+            print(json_compatible_item_data)
+            print(latest_detections[-1])
+            return json_compatible_item_data
+        else:
+            return None
+
+    async def event_generator():
+        while True:
+            # If client was closed the connection
+            if await request.is_disconnected():
+                break
+
+            # Checks for new messages and return them to client if any
+            item = new_messages()
+            if item:
+                yield {
+                    "event": "update",
+                    "id": "message_id",
+                    "retry": MESSAGE_STREAM_RETRY_TIMEOUT,
+                    "data": f"{item}"
+                }
+
+            await asyncio.sleep(MESSAGE_STREAM_DELAY)
+
+    return EventSourceResponse(event_generator())
+
+
 @app.get('/video_feed')
 def video_feed():
     return StreamingResponse(gen_frames(), media_type='multipart/x-mixed-replace; boundary=frame')
@@ -134,7 +188,6 @@ async def websocket_endpoint(websocket: WebSocket, db: Session = Depends(get_db)
 
         except WebSocketDisconnect:
             print("Socket Disconnected")
-
 
 # return reports template
 # @app.get("/reports")

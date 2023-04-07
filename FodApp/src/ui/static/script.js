@@ -13,7 +13,26 @@ const sideCam = document.getElementById("sideCam");
 const favicon = document.getElementById("favicon");
 const sideNotif = document.getElementById("sideNotif");
 const notifCount = document.getElementById("notifCount");
+var uncleanFodCount;
 
+const evtSource = new EventSource("http://127.0.0.1:8000/stream");
+evtSource.addEventListener("update", function(event) {
+    // Logic to handle status updates
+    console.log(event)
+
+  const obj = JSON.parse(event.data);
+  map.addPoint(obj);
+
+  uncleanFodCount = uncleanFodCount + 1;
+  notifCount.innerHTML = uncleanFodCount;
+
+  //add Data point to log
+  renderLog(obj)
+});
+evtSource.addEventListener("end", function(event) {
+    console.log('Handling end....')
+    evtSource.close(); 
+});
 
 const TIMEOUT_SEC = 10;
 
@@ -55,27 +74,26 @@ class Map {
     });
   };
 
-  //Find all available/uncleared FOD in API
-  // _loadAllFod = async function () {
-  //   try {
-  //     // const data = fetch("http://127.0.0.1:8000/all_logs");
-  //     const data = fetch("http://127.0.0.1:8000/all_uncleaned");
-  //     const res = await Promise.race([data, this._timeout(TIMEOUT_SEC)]);
-  //     const dataRes = await res.json();
-  //     const fodCount = dataRes.length;
-  //     notifCount.innerHTML = fodCount;
+  // Find all available/uncleared FOD in API
+  __addAllUnclean = async function () {
+    try {
+      // const data = fetch("http://127.0.0.1:8000/all_logs");
+      const data = fetch("http://127.0.0.1:8000/all_uncleaned");
+      const res = await Promise.race([data, this._timeout(TIMEOUT_SEC)]);
+      const dataRes = await res.json();
+      uncleanFodCount = dataRes.length;
+      notifCount.innerHTML = uncleanFodCount;
 
-  //     /* Display all uncleared FOD in side panel and the map*/
+      /* Display all uncleared FOD in side panel and the map*/
 
-  //     dataRes.forEach((fod) => {
-  //       this.addPoint(fod);
-  //       renderLog(fod);
-  //     });
-  //     if (!res.ok) throw new Error(`cannot reach url ${res.status}`);
-  //   } catch (err) {
-  //     throw err;
-  //   }
-  // };
+      dataRes.forEach((fod) => {
+        this.addPoint(fod);
+      });
+      if (!res.ok) throw new Error(`cannot reach url ${res.status}`);
+    } catch (err) {
+      throw err;
+    }
+  };
 
   removeMark(dis, marker) {
     console.log(marker);
@@ -135,6 +153,7 @@ class Map {
 // later add class Camera to access user cam via browser
 
 var map = new Map();
+map.__addAllUnclean();
 
 function renderLog(data) {
   const html = `
@@ -191,13 +210,13 @@ var interval = window.setInterval(function () {
 
 socket.onmessage = function (event) {
   // Add Data point to map
-  const obj = JSON.parse(event.data);
-  map.addPoint(obj);
+  // const obj = JSON.parse(event.data);
+  // map.addPoint(obj);
 
-  //add Data point to log
-    renderLog(obj)
+  // //add Data point to log
+  //   renderLog(obj)
 
-    notification()
+    // notification()
 };
 
 socket.onclose = function (event) {

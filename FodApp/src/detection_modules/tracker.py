@@ -59,7 +59,7 @@ class EuclideanDistTracker:
                 # Might need to change the dist < number based on speed
                 if dist < 150:
                     self.center_points[id] = (cx, cy)
-                    print(self.center_points)
+                    # print(self.center_points)
                     objects_bbs_ids.append([x, y, w, h, id])
                     same_object_detected = True
                     break
@@ -95,18 +95,18 @@ class EuclideanDistTracker:
                     confidence_score = 0.0
 
                 # assign object
-                det_json_obj = {'fod_type': str(fod_type),
-                                'uuid': str(fod_uuid),
-                                'coord': str(coor),
-                                'confidence_level': float(confidence_score),
-                                'image_path': str(image_path),
-                                'cleaned': bool(cleaned),
-                                'recommended_action': str(rec_cleanup_method)
+                det_json_obj = {"fod_type": str(fod_type),
+                                "uuid": str(fod_uuid),
+                                "coord": str(coor),
+                                "confidence_level": float(confidence_score),
+                                "image_path": str(image_path),
+                                "cleaned": bool(cleaned),
+                                "recommended_action": str(rec_cleanup_method)
                                 }
 
                 try:
                     x = requests.post(self.url, json=det_json_obj)
-                    print(x.text)
+                    # print(x.text)
                 except:
                     pass
 
