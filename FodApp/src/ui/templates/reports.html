@@ -33,14 +33,9 @@
   <div id="mySidenav" class="sidenav">
     <!-- Menu -->
     <a class="openbtn" onclick="openNav()"><i class="fa-solid fa-bars"></i></a>
-    <a class="tooltip" id="sideCam" onclick="generateAnalysis()" class="button" type="button"><i
-      class="fa-solid fa-video"></i><span class="tooltiptext">Common FOD</span></a>
-  
-  <!-- Notifications -->
-  <a class="notification" id="sideNotif" onclick="" class="button" type="button"><i
-    class="fa-regular fa-bell"></i><span class="tooltiptext">Generate Report</span>
-  </a>    <!--Camera & map -->
+    <a class="tooltip" id="sideCam" onclick="generateAnalysis()" class="button" type="button"><i class="fa-solid fa-chart-pie"></i><span class="tooltiptext">Analyze</span></a>
   </div>
+  
   <div class="repsidebar">
     <!-- <button class="repbutton" onclick="generateAnalysis()"></button> -->
     
@@ -58,6 +53,7 @@
         <a onclick="nut('wood')">Wood</a>
         <a onclick="nut('wrench')">Wrench</a>
       </div>
+      <p style="color:black">Total Count for this Option: <p style="color: black; text-align: center;" id="FODcountperclass"></p></p> 
     </div>
     <hr>
     <div class="commonfod">
@@ -102,16 +98,23 @@
           <h4><b>Average Cleanup Time</b></h4>
           <p class="fodcleanup">.</p>
         </div>
+      </div>     
+      <br> 
+      <div class="card">
+        <!-- <img src="img_avatar.png" alt="Avatar" style="width:100%"> -->
+        <div class="container">
+          <form action="http://127.0.0.1:8000/get_fod_type_bydate" method="POST">
+            <label for="fodDate">Date:</label>
+            <input type="date" id="fodDate" name="fodDate" min="2023-03-23">
+            <br><br>
+            <div class="subtime">
+              <p style="display: inline-block;" ><button class="datebtn">Submit</button></p>
+              <button onclick="nut('all')" style="display: inline-block;" class="datebtn">All-time</button>
+            </div>
+          </form>
+        </div>
       </div>
       <br>
-      <form action="http://127.0.0.1:8000/get_fod_type_bydate" method="POST">
-        <label for="fodDate">Select by Date:</label>
-        <input type="date" id="fodDate" name="fodDate" min="2023-03-23">>
-        <br>
-        <p><button>Submit</button></p>
-      </form>
-      <button onclick="nut('all')">All-time</button>
-      <p>Total Count for this Option: <p id="FODcountperclass"></p></p> 
     </div>
     <hr>
     <div class="commonfod">

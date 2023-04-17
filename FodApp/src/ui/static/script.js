@@ -3,6 +3,8 @@ const apilist = document.querySelector(".api");
 const logs = document.querySelector(".logs");
 const mySidepanel = document.querySelector(".openbtn");
 const tooltip = document.querySelector(".tooltiptext");
+const radiusbtn = document.querySelector(".radiusbtn");
+const feedbtn = document.querySelector(".feedbtn");
 var notification = document.querySelector(".notification");
 const showMap = document.getElementById("map");
 const showVideo = document.getElementById("cam");
@@ -15,10 +17,11 @@ const sideNotif = document.getElementById("sideNotif");
 const notifCount = document.getElementById("notifCount");
 var uncleanFodCount;
 
+//Server Side Events and Live Feed Functions
 const evtSource = new EventSource("http://127.0.0.1:8000/stream");
 evtSource.addEventListener("update", function(event) {
-    // Logic to handle status updates
-    console.log(event)
+  //   // Logic to handle status updates
+  //   console.log(event)
 
   const obj = JSON.parse(event.data);
   map.addPoint(obj);
@@ -27,11 +30,11 @@ evtSource.addEventListener("update", function(event) {
   notifCount.innerHTML = uncleanFodCount;
 
   //add Data point to log
-  renderLog(obj)
+  renderLog(obj);
 });
-evtSource.addEventListener("end", function(event) {
-    console.log('Handling end....')
-    evtSource.close(); 
+evtSource.addEventListener("end", function (event) {
+  console.log("Handling end....");
+  evtSource.close();
 });
 
 const TIMEOUT_SEC = 10;
@@ -74,7 +77,7 @@ class Map {
     });
   };
 
-  // Find all available/uncleared FOD in API
+  // Find all available/uncleared FOD in API  
   __addAllUnclean = async function () {
     try {
       // const data = fetch("http://127.0.0.1:8000/all_logs");
@@ -148,9 +151,30 @@ class Map {
     //Verify delete: "Are you sure you want to delete?"
     //add button and show details + images
   }
-}
+  radius = async function () {
+    try {
+      const data = fetch("http://127.0.0.1:8000/common_location");
+      const res = await Promise.race([data, this._timeout(TIMEOUT_SEC)]);
+      const dataRes = await res.json();
 
-// later add class Camera to access user cam via browser
+      dataRes.split(",");
+      const long = dataRes.split(", ");
+      const coord = long.map(Number);
+
+      //add radius to map
+      var circle = L.circle(coord, {
+        color: "lightred",
+        fillColor: "#f03",
+        fillOpacity: 0.5,
+        radius: 100,
+      }).addTo(this.map);
+
+      if (!res.ok) throw new Error(`cannot reach url ${res.status}`);
+    } catch (err) {
+      throw err;
+    }
+  };
+}
 
 var map = new Map();
 map.__addAllUnclean();
@@ -183,7 +207,7 @@ function renderLog(data) {
 }
 
 function notification() {
-  var audio = new Audio('../static/mixkit-long-pop-2358.wav');
+  var audio = new Audio("../static/mixkit-long-pop-2358.wav");
   if (document.visibilityState === "hidden") {
     favicon.setAttribute("href", "../static/img2.png");
   } else {
@@ -197,41 +221,6 @@ document.addEventListener("visibilitychange", () => {
   }
 });
 
-//Socket and Live Feed Functions
-socket = new WebSocket("ws://127.0.0.1:8000/ws");
-
-socket.onopen = function (event) {
-  alert("Connection with WS made");
-};
-
-var interval = window.setInterval(function () {
-  socket.send("open");
-}, 8000);
-
-socket.onmessage = function (event) {
-  // Add Data point to map
-  // const obj = JSON.parse(event.data);
-  // map.addPoint(obj);
-
-  // //add Data point to log
-  //   renderLog(obj)
-
-    // notification()
-};
-
-socket.onclose = function (event) {
-  if (event.wasClean) {
-    alert(
-      `[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`
-    );
-  } else {
-    alert("[close] Connection died");
-  }
-};
-
-socket.onerror = function (error) {
-  alert(`[error]`);
-};
 
 //Display Functions
 
@@ -251,7 +240,7 @@ function displayCam() {
 }
 
 function swap() {
-  // getCam();
+  toggleFeed();
   if (showVideo.style.display == "none") {
     displayCam();
   } else {
@@ -264,6 +253,8 @@ function openNav() {
   sideCam.style.display = "none";
   form.style.display = "none";
   sideNotif.style.display = "none";
+  radiusbtn.style.display = "none";
+  feedbtn.style.display = "none";
 }
 function closeNav() {
   sidePanel.style.width = "0";
@@ -271,18 +262,19 @@ function closeNav() {
   sideCam.style.display = "block";
   form.style.display = "block";
   sideNotif.style.display = "block";
+  radiusbtn.style.display = "block";
+  feedbtn.style.display = "block";
 }
 
 var vid_enabled = false;
-function toggleFeed(){
-  if (vid_enabled){
-    var video_feed = document.getElementById("video_feed"); 
-    showVideo.removeChild(video_feed)
+function toggleFeed() {
+  if (vid_enabled) {
+    var video_feed = document.getElementById("video_feed");
+    showVideo.removeChild(video_feed);
     vid_enabled = false;
-
-  }else{
-    img_tag = `<img id="video_feed" src="http://127.0.0.1:8000/video_feed" width="50%"></img>`
-    showVideo.insertAdjacentHTML('afterbegin', img_tag)
-    vid_enabled = true
+  } else {
+    img_tag = `<img id="video_feed" src="http://127.0.0.1:8000/video_feed" width="50%"></img>`;
+    showVideo.insertAdjacentHTML("afterbegin", img_tag);
+    vid_enabled = true;
   }
 }

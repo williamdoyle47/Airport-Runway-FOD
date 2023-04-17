@@ -48,8 +48,9 @@ async function generateCSV() {
   }
 }
 function renderTable(data) {
-
-  var tbodyRef = document.getElementById('resultsTable').getElementsByTagName('tbody')[0];
+  var tbodyRef = document
+    .getElementById("resultsTable")
+    .getElementsByTagName("tbody")[0];
   var newRow = tbodyRef.insertRow();
 
   var newCell = newRow.insertCell();
@@ -64,11 +65,9 @@ function renderTable(data) {
   var newText = document.createTextNode(data.coord);
   newCell.appendChild(newText);
 
-
   var newCell = newRow.insertCell();
   var newText = document.createTextNode(data.recommended_action);
   newCell.appendChild(newText);
-
 
   var newCell = newRow.insertCell();
   var newText = document.createTextNode(data.timestamp.split("T")[0]);
@@ -79,79 +78,82 @@ function renderTable(data) {
   newCell.appendChild(newText);
 
   var newCell = newRow.insertCell();
-  var newText = document.createTextNode(`${data.cleaned_timestamp ? data.cleaned_timestamp: "N/A"}`);
+  var newText = document.createTextNode(
+    `${data.cleaned_timestamp ? data.cleaned_timestamp : "N/A"}`
+  );
   newCell.appendChild(newText);
 }
-
 
 // this is obv not ideal code as we repeat ourselves for every each class of FOD -- fix later
 async function nut(fodType) {
   try {
     var dateControl = document.querySelector('input[type="date"]');
 
-    console.log(dateControl.value)
+    console.log(dateControl.value);
     const data = fetch("http://127.0.0.1:8000/all_logs");
     const res = await Promise.race([data, timeout(TIMEOUT_SEC)]);
-    var topCount;//leave as var as it will be redefined
+    var topCount; //leave as var as it will be redefined
     var dataRes = await res.json();
 
-    if(dateControl.value){
-      dataRes = dataRes.filter((fod) => fod.timestamp.split("T")[0] === dateControl.value);
-      console.log("Filtering by date...")
+    if (dateControl.value) {
+      dataRes = dataRes.filter(
+        (fod) => fod.timestamp.split("T")[0] === dateControl.value
+      );
+      console.log("Filtering by date...");
     }
 
-
-    if (fodType == 'all'){
-        topCount = dataRes.slice(0, 40);
+    if (fodType == "all") {
+      topCount = dataRes.slice(0, 40);
     }
 
-    if (fodType == 'nut'){
+    if (fodType == "nut") {
       var fod = dataRes.filter((nut) => nut.fod_type === "nut");
       // var fod = dataRes.filter((nut) => nut.fod_type === "nut");
       //filter by date value
       topCount = fod.slice(0, 20);
     }
 
-    if (fodType == 'bolt'){
+    if (fodType == "bolt") {
       const fod = dataRes.filter((nut) => nut.fod_type === "bolt");
       topCount = fod.slice(0, 20);
     }
 
-    if (fodType == 'wrench'){
+    if (fodType == "wrench") {
       const fod = dataRes.filter((nut) => nut.fod_type === "wrench");
       topCount = fod.slice(0, 20);
     }
 
-    if (fodType == 'concrete'){
+    if (fodType == "concrete") {
       const fod = dataRes.filter((nut) => nut.fod_type === "concrete");
       topCount = fod.slice(0, 20);
     }
-    if (fodType == 'pliers'){
+    if (fodType == "pliers") {
       const fod = dataRes.filter((nut) => nut.fod_type === "pliers");
       topCount = fod.slice(0, 20);
     }
-    if (fodType == 'screwdriver'){
+    if (fodType == "screwdriver") {
       const fod = dataRes.filter((nut) => nut.fod_type === "screwdriver");
       topCount = fod.slice(0, 20);
     }
-    if (fodType == 'wood'){
+    if (fodType == "wood") {
       const fod = dataRes.filter((nut) => nut.fod_type === "wood");
       topCount = fod.slice(0, 20);
     }
 
-    var tbodyRef = document.getElementById('resultsTable').getElementsByTagName('tbody')[0];
+    var tbodyRef = document
+      .getElementById("resultsTable")
+      .getElementsByTagName("tbody")[0];
 
-    var new_tbody = document.createElement('tbody');
-    
+    var new_tbody = document.createElement("tbody");
 
-    tbodyRef.parentNode.replaceChild(new_tbody, tbodyRef)
+    tbodyRef.parentNode.replaceChild(new_tbody, tbodyRef);
 
     var FODcountperclass = document.getElementById("FODcountperclass");
 
-    FODcountperclass.innerHTML = topCount.length
+    FODcountperclass.innerHTML = topCount.length;
 
     new_tbody.setAttribute("id", "resultsTableBody");
-    
+
     topCount.forEach((fodtp) => {
       renderTable(fodtp);
     });
@@ -168,40 +170,18 @@ async function commonFod() {
     const dataRes = await res.json();
     fodtype.innerHTML = dataRes;
 
-    /*
-    //Show most common fod
-
-    let mostFreq = 1;
-    let count = 0;
-    let commonFod;
-
-    for (let i = 0; i < dataRes.length; i++) {
-      for (let j = i; j < dataRes.length; j++) {
-        if (dataRes[i] == dataRes[j]) count++;
-        if (mostFreq < count) {
-          mostFreq = count;
-          commonFod = dataRes[i];
-          fodtype.innerHTML = commonFod;
-          console.log(commonFod, count);
-        }
-      }
-      count = 0;
-    }
-    console.log(commonFod);
-    */
-
     if (!res.ok) throw new Error(`cannot reach url ${res.status}`);
   } catch (err) {
     throw err;
   }
 }
 
-async function avgCleanUpTime(){
+async function avgCleanUpTime() {
   try {
     const data = fetch("http://127.0.0.1:8000/avg_cleanup_time");
     const res = await Promise.race([data, timeout(TIMEOUT_SEC)]);
     const dataRes = await res.json();
-    console.log(dataRes)
+    console.log(dataRes);
     fodCleanup.innerHTML = dataRes;
 
     if (!res.ok) throw new Error(`cannot reach url ${res.status}`);
@@ -223,7 +203,6 @@ async function commonLocation() {
     throw err;
   }
 }
-
 
 async function totalUncleanFod() {
   try {
