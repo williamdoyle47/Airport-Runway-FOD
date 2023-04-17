@@ -35,7 +35,7 @@
     <a class="openbtn" onclick="openNav()"><i class="fa-solid fa-bars"></i></a>
     <!--Camera & map -->
     <a class="tooltip" id="sideCam" onclick="swap()" class="button" type="button"><i
-        class="fa-solid fa-video"></i><span class="tooltiptext">Enable Cam</span></a>
+        class="fa-solid fa-video"></i><span class="tooltiptext">Enable Stream</span></a>
     
     <!-- Notifications -->
     <a class="notification" id="sideNotif" onclick="map._loadAllFod()" class="button" type="button"><i
@@ -47,18 +47,22 @@
     <div class="options">
       <br />
       <div class="listlogs">
-        <h2 class="btn-api" onclick="">Logs</h2>
+        <h2 class="btn-api" onclick="">Detections</h2>
         <div class="api">
           <div class="logs">
             <br>
           </div>
+          
         </div>
         
       </div>
-        
     </div>
-    <button onclick="toggleFeed()">Toggle Video Stream and Webcam Detection</button>
+    <button class="radiusbtn" onclick="map.radius()" >Radius</button>
+<br>
+    <button class="feedbtn" onclick="toggleFeed()" >Video Stream</button>
+
   </div>
+
   <!-- <div>gap</div> -->
   <div id="map"></div>
   <div id="cam">

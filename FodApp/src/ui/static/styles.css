@@ -84,6 +84,7 @@ a:visited {
   /* padding-top: 25%; */
   display: block;
   /* opacity: 0; */
+  height: 490px;
 }
 .api {
   height: 490px;
@@ -521,6 +522,31 @@ hr.rounded {
   border-radius: 3px;
   border: none;
 }
+.datebtn {
+  background-color: var(--color-dark--1);
+  color: white;
+  padding: 14px;
+  font-size: 8px;
+  border-radius: 3px;
+  border: none;
+}
+
+.feedbtn {
+  background-color: var(--color-light--1);
+  color: white;
+  padding: 12px;
+  font-size: 12px;
+  border-radius: 3px;
+  border: none;
+}
+.radiusbtn {
+  background-color: var(--color-brand--1);
+  color: white;
+  padding: 12px;
+  font-size: 12px;
+  border-radius: 3px;
+  border: none;
+}
 
 /* The container <div> - needed to position the dropdown content */
 
@@ -591,7 +617,7 @@ hr.rounded {
 /*table */
 
 table {
-  border-collapse: separate;
+  border-collapse: collapse;
   /* border-spacing: 0 5px; */
   color: #000;
   max-height: 350px;
