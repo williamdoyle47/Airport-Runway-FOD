@@ -15,10 +15,11 @@ const sideNotif = document.getElementById("sideNotif");
 const notifCount = document.getElementById("notifCount");
 var uncleanFodCount;
 
+//Server Side Events and Live Feed Functions
 const evtSource = new EventSource("http://127.0.0.1:8000/stream");
 evtSource.addEventListener("update", function(event) {
-    // Logic to handle status updates
-    console.log(event)
+  //   // Logic to handle status updates
+  //   console.log(event)
 
   const obj = JSON.parse(event.data);
   map.addPoint(obj);
@@ -74,7 +75,7 @@ class Map {
     });
   };
 
-  // Find all available/uncleared FOD in API
+  // Find all available/uncleared FOD in API  
   __addAllUnclean = async function () {
     try {
       // const data = fetch("http://127.0.0.1:8000/all_logs");
@@ -150,8 +151,6 @@ class Map {
   }
 }
 
-// later add class Camera to access user cam via browser
-
 var map = new Map();
 map.__addAllUnclean();
 
@@ -197,41 +196,6 @@ document.addEventListener("visibilitychange", () => {
   }
 });
 
-//Socket and Live Feed Functions
-socket = new WebSocket("ws://127.0.0.1:8000/ws");
-
-socket.onopen = function (event) {
-  alert("Connection with WS made");
-};
-
-var interval = window.setInterval(function () {
-  socket.send("open");
-}, 8000);
-
-socket.onmessage = function (event) {
-  // Add Data point to map
-  // const obj = JSON.parse(event.data);
-  // map.addPoint(obj);
-
-  // //add Data point to log
-  //   renderLog(obj)
-
-    // notification()
-};
-
-socket.onclose = function (event) {
-  if (event.wasClean) {
-    alert(
-      `[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`
-    );
-  } else {
-    alert("[close] Connection died");
-  }
-};
-
-socket.onerror = function (error) {
-  alert(`[error]`);
-};
 
 //Display Functions
 
