@@ -41,7 +41,7 @@ class EuclideanDistTracker:
     def getDetectionsList(self):
         return self.detections_list
 
-    def update(self, objects_rect, category_index, detections, frame):
+    def update(self, objects_rect, category_index, detections, frame, gps_controller):
         # Objects boxes and ids
         objects_bbs_ids = []
 
@@ -69,7 +69,6 @@ class EuclideanDistTracker:
                 self.center_points[self.id_count] = (cx, cy)
                 objects_bbs_ids.append([x, y, w, h, self.id_count])
                 self.id_count += 1
-                print("Detection made w/ id: " + str(self.id_count))
 
                 fod_uuid = uuid.uuid4()
                 fod_uuid_full = str(fod_uuid) + '.jpg'
@@ -86,13 +85,23 @@ class EuclideanDistTracker:
                 # recommend actions
                 rec_cleanup_method = self.recommend_action(fod_type)
                 cleaned = False
-                coor = random.choice(coords)
+
+                if gps_controller.get_gps_status() != None:
+                    coor = gps_controller.extract_coordinates()
+                    print(coor)
+                    if coor == "0,0":
+                        coor = random.choice(coords)
+                    print(coor)
+                else:
+                    coor = random.choice(coords)
 
                 image_path = "/detectionImages/" + \
                     str(fod_uuid) + '.jpg'  # fix this
                 confidence_score = detections['detection_scores'][0]
                 if confidence_score is None:
                     confidence_score = 0.0
+
+                print(str(fod_type))
 
                 # assign object
                 det_json_obj = {"fod_type": str(fod_type),

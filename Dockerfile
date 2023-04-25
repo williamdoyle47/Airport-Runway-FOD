@@ -9,7 +9,8 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 #install git
-RUN apt-get update && apt-get install -y git
+RUN apt-get update
+RUN apt-get install -y git
 # Install pip requirements
 # lines that are the least changd so go as high as possible (re ordering needed) (some commands that change often need to before others for orders sake)
 # the docker file does every line after a changed line as if it were changed
@@ -26,15 +27,15 @@ RUN apt install -y protobuf-compiler
 # COPY command should be replaced by importing from a github location
 WORKDIR /app
 COPY . /app
+
 # this does the rest of the readme/file structure and is for object detection creation
-RUN git clone https://github.com/scaltintasli/Airport-Runway-FOD.git
 RUN git clone https://github.com/tensorflow/models.git /FodApp/src/Tensorflow/models
-RUN git clone https://github.com/nicknochnack/GenerateTFRecord /FodApp/src/Tensorflow/workspace/scripts
 WORKDIR /FodApp/src/Tensorflow/models/research
 RUN protoc object_detection/protos/*.proto --python_out=.
 RUN cp object_detection/packages/tf2/setup.py setup.py
 RUN python setup.py build
 RUN python setup.py install
+
 # Creates a non-root user with an explicit UID and adds permission to access the /app folder
 # For more info, please refer to https://aka.ms/vscode-docker-python-configure-containers
 WORKDIR /app

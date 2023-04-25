@@ -1,22 +1,12 @@
 import tensorflow as tf
 import os
 import cv2
-import json
-import random
-import requests
 import pathlib
-import uuid
 import numpy as np
 import pathlib
-from detection_modules.DetectionLogging import LogDetection
-from PIL import Image
 from object_detection.utils import label_map_util
 from object_detection.utils import visualization_utils as viz_utils
 from detection_modules.coords import *
-from object_detection.builders import model_builder
-from object_detection.utils import config_util
-import requests
-from detection_modules.coords import coords, magnet, sweeping, rumble_strips, fod_containers
 from detection_modules.tracker import *
 
 camera_Width = 480  # 320 # 480 # 720 # 1080 # 1620
@@ -31,7 +21,7 @@ class DetectionModel:
         self.threshold = .70
         self.url = "http://127.0.0.1:8000/add_fod"
         self.saved_model_path = pathlib.Path(__file__).parents[1].resolve().joinpath(
-            'Tensorflow/workspace/models/ssd_mobnet640v2/export/saved_model')
+            'Tensorflow/workspace/models/ssd_mobnet640v8/export/saved_model')
         self.label_map_name = pathlib.Path(__file__).parents[1].resolve().joinpath(
             'Tensorflow/workspace/annotations/label_map.pbtxt')
         self.tracker = EuclideanDistTracker()
@@ -43,7 +33,9 @@ class DetectionModel:
 
             self.category_index = label_map_util.create_category_index_from_labelmap(
                 self.label_map_name)
-        except:
+        except Exception as e:
+            print("======")
+            print(e)
             print("Error loading model -- check saved model")
 
     @tf.function  # graph mode execution decorator -- pre loads model weights leading to faster inference
@@ -90,7 +82,7 @@ class DetectionModel:
         found = [i for i, e in enumerate(scoreValues) if e >= self.threshold]
         return found
 
-    def detection_controller(self, image_np):
+    def detection_controller(self, image_np, gps_controller):
         try:
             listDetections = []  # for tracker
             detections = self.make_detections(
@@ -110,7 +102,7 @@ class DetectionModel:
 
             # Object tracking and Detection Logging
             boxes_ids = self.tracker.update(
-                listDetections, self.category_index, detections, frame)
+                listDetections, self.category_index, detections, frame, gps_controller)
 
             # Add bnd boxes to detected object -- detection classes + id
             for box_id in boxes_ids:
@@ -125,11 +117,31 @@ class DetectionModel:
         except:
             return image_np  # return frmae even when no object detected
 
+    def test_detection_controller(self, image_np):
+        detections = self.make_detections(image_np)
+        boundary_boxes = self.bndbox(image_np, detections)
+
+        try:
+            confidence_score = detections['detection_scores'][0]
+            # cleaned = false
+
+            if confidence_score > self.threshold:
+                # ensure we are looking at different detecion object -- future update
+                # if so create detection object
+                # call logging function()
+                fod_type = self.category_index.get(
+                    (detections['detection_classes'][0] + self.label_id_offset))['name']
+                print(fod_type)
+
+            return boundary_boxes
+        except:
+            return boundary_boxes
+
 
 # FOR TESTING
 if __name__ == '__main__':
     print(os.getcwd())
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(0)
     det = DetectionModel()
     while (cap.isOpened()):
 
@@ -139,7 +151,7 @@ if __name__ == '__main__':
 
         if ret:
             image_np = np.array(frame)
-            frame = det.detection_controller(image_np)
+            frame = det.test_detection_controller(image_np)
             cv2.imshow("Image", frame)
         else:
             print('no video')

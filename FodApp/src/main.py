@@ -1,34 +1,36 @@
-from collections import Counter
 import uvicorn
 import threading
 import numpy as np
 import cv2
 import json
 import pathlib
-from sqlalchemy.sql import null
+import asyncio
+
+# starlette and fast api imports
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect, HTTPException, Depends
-from fastapi.websockets import WebSocketState
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import ORJSONResponse, StreamingResponse
-from detection_modules.DetectionModel import DetectionModel
 from fastapi.middleware.cors import CORSMiddleware
-from data_modules import models
-from data_modules import engine, SessionLocal
+from fastapi.encoders import jsonable_encoder
+from sse_starlette.sse import EventSourceResponse
+
+# sqlalchemy imports
 from datetime import datetime, timedelta
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
+
+# FodApp Imports
+from detection_modules.DetectionModel import DetectionModel
+from data_modules import models
+from data_modules import engine, SessionLocal
 from data_modules.models import FOD
-from fastapi.encoders import jsonable_encoder
-from generate_csv import *
-from starlette.applications import Starlette
-from starlette.routing import Route
-from sse_starlette.sse import EventSourceResponse
-import asyncio
+from data_modules.generate_csv import *
+from gps_controller import GPS_Controller
 
 # init detection model
 detection_model = DetectionModel()
+gps_controller = GPS_Controller()
 lock = threading.Lock()
 
 # fast api settings
@@ -36,6 +38,9 @@ app = FastAPI()
 
 # creates DB and table if does not exist
 models.Base.metadata.create_all(bind=engine)
+
+MESSAGE_STREAM_DELAY = 1  # second
+MESSAGE_STREAM_RETRY_TIMEOUT = 15000  # milisecond
 
 origins = [
     "http://localhost",
@@ -74,14 +79,9 @@ def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 
-@app.get("/cameras")  # route for testing BE to FE connection
-def camera_testing(request: Request):
-    return templates.TemplateResponse("cameras.html", {"request": request})
-
-
-@app.get("/cams")  # route to show multicam feature
-def multi_camera_view(request: Request):
-    return templates.TemplateResponse("cams.html", {"request": request})
+@app.get("/offline")
+def home(request: Request):
+    return templates.TemplateResponse("map.html", {"request": request})
 
 
 @app.get("/reports")  # route to show multicam feature
@@ -89,16 +89,11 @@ def multi_camera_view(request: Request):
     return templates.TemplateResponse("reports.html", {"request": request})
 
 
-MESSAGE_STREAM_DELAY = 1  # second
-MESSAGE_STREAM_RETRY_TIMEOUT = 15000  # milisecond
-
-
 @app.get('/stream')
 async def message_stream(request: Request, db: Session = Depends(get_db)):
     latest_detections = []
     obj = db.query(models.FOD).order_by(
         models.FOD.id.desc()).first()
-    print("first")
     json_compatible_item_data = jsonable_encoder(obj)
     json_compatible_item_data = json.dumps(json_compatible_item_data)
     latest_detections.append(json_compatible_item_data)
@@ -108,12 +103,8 @@ async def message_stream(request: Request, db: Session = Depends(get_db)):
             models.FOD.id.desc()).first()
         json_compatible_item_data = jsonable_encoder(obj)
         json_compatible_item_data = json.dumps(json_compatible_item_data)
-        print("second")
         if json_compatible_item_data != latest_detections[-1]:
             latest_detections.append(json_compatible_item_data)
-            print("==== third === ")
-            print(json_compatible_item_data)
-            print(latest_detections[-1])
             return json_compatible_item_data
         else:
             return None
@@ -159,40 +150,15 @@ def gen_frames():
             else:
                 image_np = np.array(frame)
 
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
-
             # Model Interaction
-            frame = detection_model.detection_controller(image_np)
+            frame = detection_model.detection_controller(
+                image_np, gps_controller)
 
             ret, buffer = cv2.imencode('.jpg', frame)
             frame = buffer.tobytes()
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
     camera.release()
-
-
-@app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket, db: Session = Depends(get_db)):
-    await websocket.accept()
-    while True:
-        try:
-            command = await websocket.receive_text()
-            if str(command) == "open":
-                # await asyncio.sleep(5)
-                obj = db.query(models.FOD).order_by(
-                    models.FOD.id.desc()).first()
-                json_compatible_item_data = jsonable_encoder(obj)
-                print(type(json_compatible_item_data))
-                await websocket.send_json(json_compatible_item_data)
-
-        except WebSocketDisconnect:
-            print("Socket Disconnected")
-
-# return reports template
-# @app.get("/reports")
-
-# Connect to reporting routes
 
 
 ############### SEPERATE LATER ##########
@@ -208,8 +174,7 @@ class FOD(BaseModel):
     recommended_action: str = Field(min_length=1, max_length=100)
     cleaned_timestamp: datetime = Field(default=None)
 
-
-FODS = []
+# Basic Fod Routes
 
 
 @app.get("/all_logs")
@@ -226,12 +191,33 @@ async def all_uncleaned_fod(db: Session = Depends(get_db)):
 async def fod_img(fod_uuid: str):
     fod_uuid_full = fod_uuid + ".jpg"
     return FileResponse(pathlib.Path(__file__).parent.resolve().joinpath('data_modules', 'detectionImages', fod_uuid_full))
-    # need to make this path dynamic in future update
 
 
 @app.get("/fod/{fod_uuid}")
 async def fod_by_uuid(fod_uuid: str, db: Session = Depends(get_db)):
     return db.query(models.FOD).filter(models.FOD.uuid == str(fod_uuid)).first()
+
+
+@app.get("/get_gps_status")
+async def gps_status():
+    status = gps_controller.get_gps_status()
+    if status:
+        coord_str = gps_controller.extract_coordinates()
+        return {"status": "on", "current_coords": coord_str}
+    else:
+        return {"status": "off"}
+
+
+@app.patch("/toggle_gps")
+async def toggle_gps():
+    gps_controller.toggle_device()
+    status = gps_controller.get_gps_status()
+    coord_str = gps_controller.extract_coordinates()
+    if status:
+        print(gps_controller.extract_coordinates())
+        return {"status": "on", "current_coords": coord_str}
+    else:
+        return {"status": "off"}
 
 
 @app.post("/add_fod")
@@ -283,9 +269,7 @@ def delete_log(log_id: int, db: Session = Depends(get_db)):
     db.commit()
 
 
-############### SEPERATE LATER ##########
-
-# Reports
+# Reports Routes
 
 
 @app.get("/common_fod_type")
@@ -320,7 +304,7 @@ def logs(db: Session = Depends(get_db)):
         if r.cleaned_timestamp != None:
             time_diff = r.cleaned_timestamp - r.timestamp
             cleanup_arr.append(time_diff)
-            print(time_diff)
+            # print(time_diff)
     average_timedelta = sum(
         cleanup_arr, timedelta(0)) / len(cleanup_arr)
     average_timedelta = str(average_timedelta)
@@ -353,4 +337,4 @@ def create_csv():
 
 
 if __name__ == '__main__':
-    uvicorn.run("main:app", reload=True, host="127.0.0.1", port=8000)
+    uvicorn.run("main:app", host="127.0.0.1", port=8000)

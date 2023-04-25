@@ -17,6 +17,7 @@ const sideNotif = document.getElementById("sideNotif");
 const notifCount = document.getElementById("notifCount");
 var uncleanFodCount;
 
+
 //Server Side Events and Live Feed Functions
 const evtSource = new EventSource("http://127.0.0.1:8000/stream");
 evtSource.addEventListener("update", function(event) {
@@ -37,12 +38,21 @@ evtSource.addEventListener("end", function (event) {
   evtSource.close();
 });
 
+
+
 const TIMEOUT_SEC = 10;
 
 class Map {
+  // get gps status
+  // if true get gps location and center there
+  // center to msp
+
+
+
+
   coords = [44.8830312, -93.2151078]; // MSP Airport
-  mapZoomLevel = 14;
-  map = L.map("map").setView(this.coords, this.mapZoomLevel);
+  mapZoomLevel = 15;
+  map = L.map("map", {crs: L.CRS.EPSG3857}).setView(this.coords, this.mapZoomLevel);
 
   constructor() {
     this._getPosition();
@@ -59,11 +69,19 @@ class Map {
       );
   }
 
+  pantoLocation(coords){
+    this.map.panTo(coords)
+  }
+
   __loadmap(position) {
     //Render location on leaflet map -- in this case hardset to MSP airport for demo
     L.tileLayer("http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", {
       attribution: "",
     }).addTo(this.map);
+    L.tileLayer(
+                "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+                {"attribution": "Esri", "detectRetina": false, "maxNativeZoom": 21, "maxZoom": 21, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
+            ).addTo(this.map);
   }
 
   //Fod Count
@@ -90,7 +108,11 @@ class Map {
       /* Display all uncleared FOD in side panel and the map*/
 
       dataRes.forEach((fod) => {
-        this.addPoint(fod);
+        console.log(fod.coord)
+        if(fod.coord != '[0, 0]'){        
+          console.log(fod.coord)
+          this.addPoint(fod);
+        }
       });
       if (!res.ok) throw new Error(`cannot reach url ${res.status}`);
     } catch (err) {
@@ -109,7 +131,6 @@ class Map {
     point.split(",");
     const long = point.split(", ");
     const coord = long.map(Number);
-
     //create rest of variables
     const fod_type = obj.fod_type;
     const timestamp = obj.timestamp;
@@ -135,6 +156,8 @@ class Map {
 
     // remove on double click
     marker.on("dblclick", () => {
+      uncleanFodCount = uncleanFodCount - 1;
+      notifCount.innerHTML = uncleanFodCount;
       this.map.removeLayer(marker);
       fetch(
         "http://127.0.0.1:8000/mark_clean/" +
@@ -151,7 +174,7 @@ class Map {
     //Verify delete: "Are you sure you want to delete?"
     //add button and show details + images
   }
-  radius = async function () {
+  addradius = async function () {
     try {
       const data = fetch("http://127.0.0.1:8000/common_location");
       const res = await Promise.race([data, this._timeout(TIMEOUT_SEC)]);
@@ -173,11 +196,39 @@ class Map {
     } catch (err) {
       throw err;
     }
-  };
+  }
 }
 
 var map = new Map();
 map.__addAllUnclean();
+getGPSStatus();
+
+function getGPSStatus(){
+  fetch("http://127.0.0.1:8000/get_gps_status").then(response => response.json())
+  .then(data => { if(data.status == "on"){
+    alert("Connected to GPS Device")
+    try{
+    const point = data.current_coords;
+    point.split(",");
+    const long = point.split(", ");
+    const coord = long.map(Number);
+    console.log([coord])
+    map.map.panTo((new L.LatLng(coord[0], coord[1])));
+
+    }catch (error){
+      console.log(error)
+      map.map.panTo((new L.LatLng(44.8830312, -93.2151078)))
+      
+    }
+  }else{alert("Not connected to GPS Device"); map.map.panTo((new L.LatLng(44.8830312, -93.2151078)));}})
+  // fetch("http://127.0.0.1:8000/get_gps_status").then(response => response.json())
+  // .then(data => console.log(data))
+  // .catch(error => console.error(error));
+  // console.log(response)
+  // if gps is off pan to msp
+  // if gps is on pan to gps location (get gps location)
+}
+
 
 function renderLog(data) {
   const html = `
@@ -240,7 +291,6 @@ function displayCam() {
 }
 
 function swap() {
-  toggleFeed();
   if (showVideo.style.display == "none") {
     displayCam();
   } else {
@@ -273,8 +323,36 @@ function toggleFeed() {
     showVideo.removeChild(video_feed);
     vid_enabled = false;
   } else {
-    img_tag = `<img id="video_feed" src="http://127.0.0.1:8000/video_feed" width="50%"></img>`;
+    img_tag = `<img id="video_feed" src="http://127.0.0.1:8000/video_feed" width="60%"></img>`;
     showVideo.insertAdjacentHTML("afterbegin", img_tag);
     vid_enabled = true;
   }
+}
+
+function toggleGPS(){
+
+
+  fetch("http://127.0.0.1:8000/toggle_gps", { method: "PATCH" }).then(response => response.json())
+  .then(data => { if(data.status == "on"){
+      alert("Connected to GPS Device")
+      try{
+      const point = data.current_coords;
+      point.split(",");
+      const long = point.split(", ");
+      const coord = long.map(Number);
+      console.log([coord])
+      map.map.panTo((new L.LatLng(coord[0], coord[1])));
+
+      }catch (error){
+        console.log(error)
+        map.map.panTo((new L.LatLng(44.8830312, -93.2151078)))
+        
+      }
+    }else{alert("Not connected to GPS Device"); map.map.panTo((new L.LatLng(44.8830312, -93.2151078)));}})
+  // fetch("http://127.0.0.1:8000/get_gps_status").then(response => response.json())
+  // .then(data => console.log(data))
+  // .catch(error => console.error(error));
+  // console.log(response)
+  // if gps is off pan to msp
+  // if gps is on pan to gps location (get gps location)
 }

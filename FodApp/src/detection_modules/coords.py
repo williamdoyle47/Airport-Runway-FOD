@@ -56,4 +56,4 @@ coords = ['44.87462654456526, -93.23352374789656',
 magnet = ['metal', 'screw', 'bolt', 'nut']  # metallic objects
 sweeping = ['pen', 'glove', 'cloth', 'LuggageTag', 'concrete']
 rumble_strips = ['']
-fod_containers = ['wood', 'pliers', 'wrench']
+fod_containers = ['wood', 'pliers', 'wrench', 'screwdrivers']
